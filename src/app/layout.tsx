@@ -52,9 +52,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: profile.name }],
   creator: profile.name,
-  icons: {
-    icon: "/favicon.ico",
-  },
+  // No explicit `icons` override here — app/icon.svg (the gold "H" monogram)
+  // is picked up automatically via Next.js's file-convention favicon, and an
+  // explicit override here would take precedence over it and hide it.
   openGraph: {
     type: "website",
     url: siteUrl,
