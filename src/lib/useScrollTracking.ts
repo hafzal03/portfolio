@@ -62,18 +62,40 @@ export function useScrollTracking(sectionIds: readonly string[]): {
       update();
     };
 
+    // Coalesce to one update per animation frame. Touch devices fire scroll
+    // far more often than they paint, and each raw call did DOM writes plus
+    // two React state updates — enough to visibly stutter on a phone.
+    //
+    // A hidden document never runs rAF callbacks at all, so the throttled
+    // path would leave the tracked values frozen until the tab came back.
+    // Updating straight away in that case costs nothing (nothing is being
+    // painted) and keeps the state correct for whenever it is shown again.
+    let frame = 0;
+    const onScroll = () => {
+      if (document.visibilityState === "hidden") {
+        update();
+        return;
+      }
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        update();
+      });
+    };
+
     measure();
     update();
 
-    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize, { passive: true });
     // Fonts/images settling can shift section offsets after first paint.
     const settle = window.setTimeout(onResize, 600);
 
     return () => {
-      window.removeEventListener("scroll", update);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.clearTimeout(settle);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, [progress, sectionIds]);
 

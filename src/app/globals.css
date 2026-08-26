@@ -56,18 +56,9 @@ body {
   color: var(--color-bg);
 }
 
-/* Subtle film-grain texture — fixed, non-interactive, purely cosmetic.
-   Keeps the black/gold surfaces from feeling like flat digital color. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-}
+/* Film grain lives in SystemOverlay (components/visual) — it used to be
+   duplicated here as a second full-viewport blended layer, which meant mobile
+   GPUs compositing the same expensive effect twice every frame. */
 
 @keyframes gold-shimmer {
   0% {

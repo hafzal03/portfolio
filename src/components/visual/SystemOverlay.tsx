@@ -36,22 +36,17 @@ export function SystemOverlay() {
 
   return (
     <>
-      {/* Film grain */}
+      {/* Grain + scanlines in ONE static layer.
+          These were previously two stacked full-viewport elements, one using
+          mix-blend-mode — a full-screen blend the GPU had to recompute every
+          frame, which is expensive on phones. Combining them into a single
+          un-blended layer composites once and looks the same. */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-[60] opacity-[0.05] mix-blend-overlay"
+        className="pointer-events-none fixed inset-0 z-[60] opacity-[0.045]"
         style={{
           backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")",
-        }}
-      />
-      {/* Scanlines */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-[60] opacity-[0.35]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, rgba(212,175,55,0.045) 0px, rgba(212,175,55,0.045) 1px, transparent 1px, transparent 4px)",
+            "repeating-linear-gradient(0deg, rgba(212,175,55,0.35) 0px, rgba(212,175,55,0.35) 1px, transparent 1px, transparent 4px), url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")",
         }}
       />
 
