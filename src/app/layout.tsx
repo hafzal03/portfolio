@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
+import { ScrollBackdrop } from "@/components/visual/ScrollBackdrop";
+import { SystemOverlay } from "@/components/visual/SystemOverlay";
 import { profile } from "@/content/profile";
 
 const geistSans = Geist({
@@ -70,7 +72,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0c",
+  themeColor: "#0a0908", // matches --color-bg (warm black), not the old cool-grey value
   colorScheme: "dark",
 };
 
@@ -84,8 +86,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased`}
       >
+        <ScrollBackdrop />
+        <SystemOverlay />
         <Navbar />
-        {children}
+        <div className="relative z-10">{children}</div>
         <ChatWidget />
       </body>
     </html>
