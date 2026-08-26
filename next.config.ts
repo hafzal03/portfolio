@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  // Produces a minimal self-contained .next/standalone build (server.js +
-  // only the deps actually used) — the right shape for deploying to a plain
-  // Node server on Azure App Service, rather than shipping the whole
-  // node_modules tree.
-  output: "standalone",
-};
+// Deployed via Azure Static Web Apps' own hybrid Next.js build (Oryx),
+// which expects the default Next.js build output and converts routes/API
+// handlers itself — it does NOT support `output: "standalone"`. If you
+// switch to the alternative Azure App Service path documented in
+// docs/DEPLOYMENT.md, re-add `output: "standalone"` there instead.
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

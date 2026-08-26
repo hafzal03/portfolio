@@ -30,7 +30,9 @@ Retrieval-Augmented Generation (RAG).
   called only from a server-side Route Handler — the API key never reaches the browser.
 - **Testing**: Vitest + Testing Library.
 - **CI/CD**: GitHub Actions.
-- **Hosting**: Microsoft Azure App Service (Linux, Node 22), provisioned via Bicep.
+- **Hosting**: Microsoft Azure Static Web Apps (currently live) — an alternative Azure App Service
+  path is provisioned via Bicep for anyone who wants more control (see
+  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
 
 ## Architecture
 
@@ -55,11 +57,12 @@ Retrieval-Augmented Generation (RAG).
               +---------------+----------------+
               |
               v
-      Azure App Service (Linux, Node 22)
+      Azure Static Web Apps (Next.js hybrid)
               |
               v
-     GitHub Actions CI/CD (lint, typecheck,
-     test, build, deploy on push to main)
+     GitHub Actions:
+       - Quality Gate (lint, typecheck, test, build) — every push/PR
+       - Azure's own SWA workflow — builds + deploys on push to master
 ```
 
 ### Why this architecture
@@ -95,8 +98,9 @@ a graceful "not configured" message instead of erroring.
 | `OPENAI_API_KEY` | For the chatbot to work | Server-side only. Used for embeddings + chat completion. |
 | `NEXT_PUBLIC_SITE_URL` | No (defaults to `https://hafzal.dev`) | Used in SEO metadata (Open Graph, canonical URL). |
 
-Never commit real values — `.env*` is gitignored. In production these are set as Azure App
-Service application settings (see [infra/main.bicep](infra/main.bicep)), not GitHub secrets.
+Never commit real values — `.env*` is gitignored. In production `OPENAI_API_KEY` is set as an
+Azure Static Web Apps application setting (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)), not a
+GitHub secret.
 
 ## Testing
 
@@ -114,40 +118,26 @@ knowledge base's integrity — no duplicate/empty chunks, no fabricated course d
 
 ## Deployment (Azure)
 
-The full setup is one App Service Plan + one Linux Web App (see [infra/main.bicep](infra/main.bicep)) —
-deliberately no separate backend, database, or vector store.
+**Currently live via Azure Static Web Apps**, connected through the Azure Portal's GitHub
+integration (resource `gentle-coast-01d41c510`). That integration auto-generated
+[.github/workflows/azure-static-web-apps-gentle-coast-01d41c510.yml](.github/workflows/azure-static-web-apps-gentle-coast-01d41c510.yml),
+which builds and deploys on every push to `master`. Separately,
+[.github/workflows/ci.yml](.github/workflows/ci.yml) runs as a **quality gate only**
+(lint → typecheck → test → build) on every push/PR — it doesn't deploy anything.
 
-### 1. One-time Azure setup
+**One thing to set manually**: `OPENAI_API_KEY` isn't populated by the Azure Portal integration —
+without it the live chatbot returns its graceful "not configured" message instead of answering.
+Set it as a Static Web App application setting:
 
 ```bash
-az group create --name hafzal-portfolio-rg --location eastus
-
-az deployment group create \
-  --resource-group hafzal-portfolio-rg \
-  --template-file infra/main.bicep \
-  --parameters openAiApiKey="<your-openai-key>"
+az staticwebapp appsettings set \
+  --name gentle-coast-01d41c510 \
+  --setting-names OPENAI_API_KEY="<your-openai-key>"
 ```
 
-### 2. GitHub → Azure OIDC (no long-lived secrets)
-
-Create an Azure AD App Registration with a federated credential scoped to this repo's `main`
-branch (`az ad app federated-credential create`, subject
-`repo:<org>/<repo>:ref:refs/heads/main`), then add these **GitHub repository secrets**:
-
-| Secret | Value |
-|---|---|
-| `AZURE_CLIENT_ID` | The App Registration's client ID |
-| `AZURE_TENANT_ID` | Your Azure AD tenant ID |
-| `AZURE_SUBSCRIPTION_ID` | Your Azure subscription ID |
-| `AZURE_WEBAPP_NAME` | The Web App name from step 1's output (`<appName>-web`) |
-
-Full step-by-step commands: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-
-### 3. Push to `main`
-
-[.github/workflows/ci.yml](.github/workflows/ci.yml) runs on every push/PR: install → lint →
-typecheck → test → build. On a push to `main` that passes, it builds the Next.js **standalone**
-output and deploys it to the Azure Web App via OIDC — no publish-profile secret stored anywhere.
+An alternative Azure App Service path (Bicep + OIDC, one always-on instance instead of
+consumption-based Functions) is documented in full — including why you might want it — in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Renaming / reconfirming identity
 
@@ -173,9 +163,10 @@ src/
     rag/                Knowledge base builder, embeddings/retrieval, chat generation, system prompt
     rateLimit.ts        In-memory sliding-window rate limiter for /api/chat
 infra/
-  main.bicep            Azure App Service Plan + Web App
+  main.bicep            Azure App Service Plan + Web App (alternative deploy path, not active)
 .github/workflows/
-  ci.yml                Lint, typecheck, test, build, deploy
+  ci.yml                                             Quality gate: lint, typecheck, test, build
+  azure-static-web-apps-gentle-coast-01d41c510.yml    Azure-generated build + deploy (active path)
 docs/
   DEPLOYMENT.md          Full Azure setup walkthrough
   PRICING_RESEARCH.md    Sources behind the indicative pricing in the Services section
