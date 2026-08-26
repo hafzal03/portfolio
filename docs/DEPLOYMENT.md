@@ -14,7 +14,7 @@ authorizes that upload.
 [.github/workflows/ci.yml](../.github/workflows/ci.yml) runs alongside it as a **separate quality
 gate** (lint/typecheck/test/build on every push/PR) — it does not deploy anything itself.
 
-### Required: set `OPENAI_API_KEY` on the Static Web App
+### Required: set `GEMINI_API_KEY` on the Static Web App
 
 This is not set automatically by the GitHub integration and **the live chatbot will not work
 without it**. Set it as an application setting (not a GitHub secret — it's a runtime secret for
@@ -23,7 +23,7 @@ the deployed app, read server-side only):
 ```bash
 az staticwebapp appsettings set \
   --name gentle-coast-01d41c510 \
-  --setting-names OPENAI_API_KEY="<your-openai-key>"
+  --setting-names GEMINI_API_KEY="<your-gemini-key>"
 ```
 
 Or: Azure Portal → your Static Web App → Settings → Environment variables → Add.
@@ -62,7 +62,7 @@ az group create --name hafzal-portfolio-rg --location eastus
 az deployment group create \
   --resource-group hafzal-portfolio-rg \
   --template-file infra/main.bicep \
-  --parameters openAiApiKey="<your-openai-key>" \
+  --parameters geminiApiKey="<your-gemini-key>" \
   --parameters siteUrl="https://hafzal.dev"
 ```
 
@@ -98,11 +98,11 @@ path — if you switch to App Service, add a `deploy` job back (same shape as be
 GitHub repository secrets needed: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
 `AZURE_WEBAPP_NAME` (the Bicep output).
 
-### Rotating the OpenAI key (App Service path)
+### Rotating the Gemini key (App Service path)
 
 ```bash
 az webapp config appsettings set \
   --resource-group hafzal-portfolio-rg \
   --name <webAppName> \
-  --settings OPENAI_API_KEY="<new-key>"
+  --settings GEMINI_API_KEY="<new-key>"
 ```

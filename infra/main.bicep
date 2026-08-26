@@ -13,9 +13,9 @@ param location string = resourceGroup().location
 @allowed(['F1', 'B1', 'B2'])
 param skuName string = 'B1'
 
-@description('OpenAI API key for the chatbot backend. Pass via --parameters at deploy time (e.g. from a GitHub secret) — never commit a real value.')
+@description('Google Gemini API key for the chatbot backend. Pass via --parameters at deploy time (e.g. from a GitHub secret) — never commit a real value.')
 @secure()
-param openAiApiKey string
+param geminiApiKey string
 
 @description('Public site URL, used for SEO metadata (Open Graph, canonical URL).')
 param siteUrl string = 'https://hafzal.dev'
@@ -48,7 +48,7 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
       appCommandLine: 'node server.js'
       minTlsVersion: '1.2'
       appSettings: [
-        { name: 'OPENAI_API_KEY', value: openAiApiKey }
+        { name: 'GEMINI_API_KEY', value: geminiApiKey }
         { name: 'NEXT_PUBLIC_SITE_URL', value: siteUrl }
         { name: 'NODE_ENV', value: 'production' }
         { name: 'WEBSITE_RUN_FROM_PACKAGE', value: '0' }

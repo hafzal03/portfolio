@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 const GRID_SPAN: Record<string, string> = {
   "khwarizmi-studio": "col-span-2 row-span-2",
   "masters-thesis-case": "col-span-2 row-span-1",
+  "hafzal-portfolio": "col-span-2 row-span-1",
   "pd-vesture": "col-span-1 row-span-1",
   "docker-kubernetes-deployment": "col-span-1 row-span-1",
   "face-recognition-attendance": "col-span-2 row-span-1",

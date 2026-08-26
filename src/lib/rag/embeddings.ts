@@ -1,7 +1,22 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { buildKnowledgeChunks, type KnowledgeChunk } from "./knowledge";
 
-const EMBEDDING_MODEL = "text-embedding-3-small";
+/**
+ * Google's current general-purpose embedding model. Its native output is
+ * 3072-dimensional; we truncate to 768 via `outputDimensionality` to keep the
+ * in-memory cache small — retrieval quality at 768 is more than sufficient for
+ * a knowledge base this size.
+ *
+ * Dimensionality only has to be *self-consistent*: documents and queries are
+ * embedded by the same model at the same size, and `cosineSimilarity` below
+ * divides by both magnitudes, so it stays correct even though truncated
+ * Gemini embeddings are not unit-normalised.
+ */
+const EMBEDDING_MODEL = "gemini-embedding-001";
+const EMBEDDING_DIMENSIONS = 768;
+
+// Gemini caps how many inputs one embedContent call accepts; batch to stay under it.
+const EMBED_BATCH_SIZE = 100;
 
 export class RagUnavailableError extends Error {
   constructor(message: string) {
@@ -20,25 +35,51 @@ interface EmbeddedChunk extends KnowledgeChunk {
 let cache: { chunks: EmbeddedChunk[]; builtFromChunkCount: number } | null = null;
 let inFlight: Promise<EmbeddedChunk[]> | null = null;
 
-function getClient(): OpenAI {
-  const apiKey = process.env.OPENAI_API_KEY;
+export function getGeminiClient(): GoogleGenAI {
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new RagUnavailableError("OPENAI_API_KEY is not configured.");
+    throw new RagUnavailableError("GEMINI_API_KEY is not configured.");
   }
-  return new OpenAI({ apiKey });
+  return new GoogleGenAI({ apiKey });
 }
 
-async function embedChunks(chunks: KnowledgeChunk[]): Promise<EmbeddedChunk[]> {
-  const client = getClient();
-  const response = await client.embeddings.create({
-    model: EMBEDDING_MODEL,
-    input: chunks.map((c) => c.text),
-  });
+/**
+ * Embeds text through Gemini. `taskType` matters for retrieval quality:
+ * stored knowledge uses RETRIEVAL_DOCUMENT and the user's question uses
+ * RETRIEVAL_QUERY, which is what Gemini's asymmetric retrieval embeddings
+ * expect. Both land in the same vector space, so they remain comparable.
+ */
+async function embedTexts(
+  texts: string[],
+  taskType: "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY"
+): Promise<number[][]> {
+  const client = getGeminiClient();
+  const out: number[][] = [];
 
-  return chunks.map((chunk, i) => ({
-    ...chunk,
-    embedding: response.data[i].embedding,
-  }));
+  for (let i = 0; i < texts.length; i += EMBED_BATCH_SIZE) {
+    const batch = texts.slice(i, i + EMBED_BATCH_SIZE);
+    const response = await client.models.embedContent({
+      model: EMBEDDING_MODEL,
+      contents: batch,
+      config: { taskType, outputDimensionality: EMBEDDING_DIMENSIONS },
+    });
+
+    const embeddings = response.embeddings;
+    if (!embeddings || embeddings.length !== batch.length) {
+      throw new Error(
+        `Gemini returned ${embeddings?.length ?? 0} embeddings for ${batch.length} inputs.`
+      );
+    }
+
+    for (const embedding of embeddings) {
+      if (!embedding.values?.length) {
+        throw new Error("Gemini returned an empty embedding vector.");
+      }
+      out.push(embedding.values);
+    }
+  }
+
+  return out;
 }
 
 async function getEmbeddedChunks(): Promise<EmbeddedChunk[]> {
@@ -49,8 +90,12 @@ async function getEmbeddedChunks(): Promise<EmbeddedChunk[]> {
   }
 
   if (!inFlight) {
-    inFlight = embedChunks(chunks)
-      .then((embedded) => {
+    inFlight = embedTexts(
+      chunks.map((c) => c.text),
+      "RETRIEVAL_DOCUMENT"
+    )
+      .then((vectors) => {
+        const embedded = chunks.map((chunk, i) => ({ ...chunk, embedding: vectors[i] }));
         cache = { chunks: embedded, builtFromChunkCount: chunks.length };
         return embedded;
       })
@@ -81,21 +126,18 @@ export interface RetrievedChunk extends KnowledgeChunk {
 
 /**
  * Retrieves the top-K knowledge chunks most relevant to a query.
- * Throws RagUnavailableError if OPENAI_API_KEY is missing or the embeddings
- * call fails — callers should catch this and degrade gracefully.
+ * Throws RagUnavailableError if GEMINI_API_KEY is missing; callers catch this
+ * and degrade gracefully rather than surfacing an error to the visitor.
  */
 export async function retrieveRelevantChunks(
   query: string,
   topK = 5
 ): Promise<RetrievedChunk[]> {
-  const client = getClient();
-  const embedded = await getEmbeddedChunks();
+  // Fail fast on missing configuration before doing any work.
+  getGeminiClient();
 
-  const queryEmbeddingResponse = await client.embeddings.create({
-    model: EMBEDDING_MODEL,
-    input: query,
-  });
-  const queryEmbedding = queryEmbeddingResponse.data[0].embedding;
+  const embedded = await getEmbeddedChunks();
+  const [queryEmbedding] = await embedTexts([query], "RETRIEVAL_QUERY");
 
   return embedded
     .map((chunk) => ({
@@ -107,3 +149,9 @@ export async function retrieveRelevantChunks(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .map(({ embedding, ...rest }) => rest);
 }
+
+/** Exported for tests/diagnostics — keeps model choices in one place. */
+export const RAG_MODELS = {
+  embedding: EMBEDDING_MODEL,
+  dimensions: EMBEDDING_DIMENSIONS,
+} as const;

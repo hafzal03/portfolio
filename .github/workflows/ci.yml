@@ -49,4 +49,4 @@ jobs:
         env:
           # A placeholder key is enough to satisfy the build — no network
           # calls happen at build time, only at request time.
-          OPENAI_API_KEY: "build-placeholder"
+          GEMINI_API_KEY: "build-placeholder"

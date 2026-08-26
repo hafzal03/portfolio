@@ -4,8 +4,8 @@ Hafzal Ahmed's personal portfolio: a deliberately simple, high-polish site with 
 advanced engineering feature — an AI chatbot grounded in the site's own content via
 Retrieval-Augmented Generation (RAG).
 
-> Working name: `hafzal.dev`. GitHub org/repo (`Hafzal03/portfolio`) and the final domain are not
-> yet confirmed — every reference to them in this repo is easy to change (see
+> Live at [hafzal.dev](https://hafzal.dev), deployed from `hafzal03/portfolio` to Azure Static Web
+> Apps. Domain and repo references are still centralised so they stay easy to change (see
 > [Renaming](#renaming--reconfirming-identity) below).
 
 ## Features
@@ -26,8 +26,9 @@ Retrieval-Augmented Generation (RAG).
 
 - **Frontend & backend**: Next.js 15 (App Router), TypeScript, Tailwind CSS v4, Framer Motion —
   one app, no separate frontend/backend services.
-- **AI chatbot**: OpenAI (`text-embedding-3-small` for retrieval, `gpt-4.1-mini` for generation),
-  called only from a server-side Route Handler — the API key never reaches the browser.
+- **AI chatbot**: Google Gemini via `@google/genai` (`gemini-embedding-001` for retrieval,
+  `gemini-3.6-flash` for generation), called only from a server-side Route Handler — the API key
+  never reaches the browser.
 - **Testing**: Vitest + Testing Library.
 - **CI/CD**: GitHub Actions.
 - **Hosting**: Microsoft Azure Static Web Apps (currently live) — an alternative Azure App Service
@@ -51,7 +52,7 @@ Retrieval-Augmented Generation (RAG).
                                      embeddings — no vector DB)
                                                 |
                                                 v
-                                       OpenAI chat completion
+                                       Gemini generation
                                        (context + system prompt)
                                                 |
               +---------------+----------------+
@@ -75,7 +76,7 @@ Retrieval-Augmented Generation (RAG).
   `src/content/*.ts` — the same files that render the UI. Add a project to
   `src/content/projects.ts` and it appears on the page *and* becomes something the chatbot can
   answer questions about, automatically (`src/lib/rag/knowledge.ts` builds the chunks).
-- **No exposed credentials.** `OPENAI_API_KEY` is read only in server-side code
+- **No exposed credentials.** `GEMINI_API_KEY` is read only in server-side code
   (`src/lib/rag/*`, `src/app/api/chat/route.ts`) and is never sent to the browser.
 
 ## Local development
@@ -84,21 +85,21 @@ Requires Node 22+.
 
 ```bash
 npm install
-cp .env.example .env.local   # then fill in OPENAI_API_KEY to enable the chatbot locally
+cp .env.example .env.local   # then fill in GEMINI_API_KEY to enable the chatbot locally
 npm run dev
 ```
 
-Open http://localhost:3000. The site works fully without `OPENAI_API_KEY` set — the chatbot shows
+Open http://localhost:3000. The site works fully without `GEMINI_API_KEY` set — the chatbot shows
 a graceful "not configured" message instead of erroring.
 
 ## Environment variables
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `OPENAI_API_KEY` | For the chatbot to work | Server-side only. Used for embeddings + chat completion. |
+| `GEMINI_API_KEY` | For the chatbot to work | Server-side only. Used for embeddings + chat completion. |
 | `NEXT_PUBLIC_SITE_URL` | No (defaults to `https://hafzal.dev`) | Used in SEO metadata (Open Graph, canonical URL). |
 
-Never commit real values — `.env*` is gitignored. In production `OPENAI_API_KEY` is set as an
+Never commit real values — `.env*` is gitignored. In production `GEMINI_API_KEY` is set as an
 Azure Static Web Apps application setting (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)), not a
 GitHub secret.
 
@@ -125,14 +126,14 @@ which builds and deploys on every push to `master`. Separately,
 [.github/workflows/ci.yml](.github/workflows/ci.yml) runs as a **quality gate only**
 (lint → typecheck → test → build) on every push/PR — it doesn't deploy anything.
 
-**One thing to set manually**: `OPENAI_API_KEY` isn't populated by the Azure Portal integration —
+**One thing to set manually**: `GEMINI_API_KEY` isn't populated by the Azure Portal integration —
 without it the live chatbot returns its graceful "not configured" message instead of answering.
 Set it as a Static Web App application setting:
 
 ```bash
 az staticwebapp appsettings set \
   --name gentle-coast-01d41c510 \
-  --setting-names OPENAI_API_KEY="<your-openai-key>"
+  --setting-names GEMINI_API_KEY="<your-gemini-key>"
 ```
 
 An alternative Azure App Service path (Bicep + OIDC, one always-on instance instead of

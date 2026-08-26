@@ -411,19 +411,71 @@ export const projects: Project[] = [
     archived: true,
   },
   {
+    // A personal engineering project and portfolio implementation — deliberately
+    // not framed as a company, startup, or founder role, and not as academic work.
     slug: "hafzal-portfolio",
-    name: "Hafzal.dev — This Portfolio",
+    name: "Hafzal.dev",
     category: "Web Development",
-    tags: ["Web", "AI", "Cloud", "Software Engineering"],
-    tagline: "A production deployment case study, not just a résumé",
+    tags: ["Web", "AI", "Cloud", "Python", "Software Engineering", "Docker"],
+    tagline: "An end-to-end build: Next.js app, RAG chatbot, CI/CD, and a live Azure deployment",
     description:
-      "This site: a Next.js portfolio with a RAG-powered AI chatbot, deployed to Azure Static Web Apps via GitHub Actions CI/CD — deliberately simple everywhere except the one advanced feature.",
+      "A personal engineering project taken from local development to a public production website: a Next.js 15 application with a RAG-powered AI chatbot, automated GitHub Actions CI/CD, and deployment to Azure Static Web Apps on a custom domain.",
     longDescription: [
-      "The portfolio you're looking at is itself a project: a deliberately simple, high-polish personal site — no unnecessary microservices, no unnecessary databases — with exactly one advanced engineering feature, a Retrieval-Augmented Generation chatbot that answers questions about Hafzal grounded in this site's own content.",
-      "It demonstrates the full lifecycle: GitHub-based development, automated linting/testing/build via GitHub Actions, and deployment to Microsoft Azure Static Web Apps.",
+      "Hafzal.dev is the site you're currently reading, and it is itself a completed engineering project rather than just a résumé page. Hafzal designed, implemented, deployed, and continues to develop it — covering the full path from an empty repository to a publicly accessible production website on a custom domain.",
+      "The application is a Next.js 15 project written in TypeScript, with an emphasis on interaction and motion design: a scroll-driven animated backdrop, 3D perspective and mouse-tracked tilt effects, shared-element transitions between project cards and their detail views, and a reduced-motion path so the whole experience degrades gracefully for users who prefer less animation.",
+      "Its one deliberately advanced component is Hafzal AI — a Retrieval-Augmented Generation chatbot that answers questions about Hafzal grounded strictly in this site's own content. The knowledge base is built directly from the site's content files, embedded with Google's Gemini embedding model, retrieved by cosine similarity over an in-memory vector set, and passed as context to Gemini for generation. There is no separate vector database: at portfolio scale, an in-memory array is the simplest correct tool. The API key is read server-side only, inside a Next.js route handler, so it is never exposed to the browser.",
+      "The deployment side is a real part of the work. The repository is managed with Git and GitHub; a GitHub Actions workflow runs linting, typechecking, tests, and a production build on every push and pull request; and Azure Static Web Apps builds and deploys the application automatically on merges to the main branch. The custom domain hafzal.dev is configured through DNS with HTTPS/SSL provided by Azure, and the production secret is stored as an Azure application setting rather than anywhere in the repository.",
     ],
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "OpenAI API", "Azure Static Web Apps", "GitHub Actions"],
-    archived: true,
+    technologies: [
+      "Next.js 15",
+      "TypeScript",
+      "React",
+      "Tailwind CSS",
+      "Framer Motion",
+      "Google Gemini API",
+      "Retrieval-Augmented Generation",
+      "Azure Static Web Apps",
+      "GitHub Actions",
+      "Vitest",
+      "DNS / Custom Domain",
+      "HTTPS / SSL",
+    ],
+    status: "Live in production — actively developed",
+    featured: true,
+    breakdown: [
+      {
+        heading: "What this project is",
+        body: "A personal software and AI engineering project: a portfolio website that doubles as a practical demonstration of taking a modern web application from local development, through source control and automated CI/CD, onto cloud infrastructure with a custom domain and HTTPS. It is a personal project and portfolio implementation — not a business, startup, or commercial product.",
+      },
+      {
+        heading: "Frontend & UI/UX engineering",
+        body: "Built with Next.js 15 (App Router) and TypeScript, styled with Tailwind CSS, and animated with Framer Motion. The interaction work includes a scroll-driven backdrop whose layers respond continuously to scroll depth, 3D perspective with mouse-tracked tilt, shared-element expand transitions from project cards into full case-study views, a filterable project archive, and a system-style HUD overlay. Accessibility and responsiveness were treated as requirements rather than extras: keyboard-navigable controls, semantic structure, and a full prefers-reduced-motion path.",
+      },
+      {
+        heading: "Hafzal AI — RAG architecture",
+        body: "The chatbot's knowledge base is generated from the same content modules that render the site, so adding a project updates both the page and what the assistant knows. Those chunks are embedded via Gemini's embedding model and cached in memory for the life of the server process; an incoming question is embedded with the matching retrieval task type, scored against every chunk by cosine similarity, and the top matches are passed to Gemini as grounding context. A strict system prompt constrains it to the retrieved material and requires it to say when something isn't in the portfolio rather than guessing.",
+      },
+      {
+        heading: "Backend & secure secret handling",
+        body: "The AI integration runs entirely server-side in a Next.js route handler: the browser posts a question to the API, and the API performs retrieval and model calls. The Gemini API key is read only from a server-side environment variable, never referenced in client code, never bundled into the browser, and never committed — locally it lives in a gitignored .env.local, and in production it is an Azure application setting. The route also validates and size-limits input, applies rate limiting, and converts provider failures into friendly messages instead of leaking stack traces.",
+      },
+      {
+        heading: "CI/CD & deployment automation",
+        body: "The repository is managed with Git and GitHub. A GitHub Actions workflow acts as a quality gate on every push and pull request — install, lint, typecheck, test, production build — so a broken change is caught before it can ship. Azure Static Web Apps is connected to the repository and builds and deploys the application automatically when changes land on the main branch, giving a genuine push-to-production pipeline rather than a manual upload.",
+      },
+      {
+        heading: "Cloud infrastructure, domain & HTTPS",
+        body: "Hosted on Microsoft Azure Static Web Apps, with environment configuration and application settings managed in Azure. The custom domain hafzal.dev was purchased and configured through DNS records pointing at the Azure deployment, with HTTPS/SSL certificates handled by Azure. An alternative Azure App Service deployment path is also defined as infrastructure-as-code (Bicep) in the repository for a more controlled hosting option.",
+      },
+      {
+        heading: "Testing & verification",
+        body: "Vitest covers the parts where correctness actually matters: retrieval ranking and the cosine-similarity implementation, chat request validation, the Gemini request assembly (role mapping and context placement), and knowledge-base integrity — including a test asserting that accuracy-critical distinctions, such as completed training versus a passed certification exam, survive into what the assistant is given. Beyond unit tests, the site was verified against a real production build and checked live in the browser.",
+      },
+      {
+        heading: "What this project taught",
+        body: "The deployment and integration work was where most of the learning happened: configuring cloud hosting and environment settings, wiring automated CI/CD so quality checks gate every change, connecting and validating a custom domain with DNS and HTTPS, and handling API credentials so that a secret used by the application never reaches the browser or the repository. On the AI side, it meant building a retrieval pipeline end to end — chunking content, generating and caching embeddings, ranking by similarity, and constraining a language model to only the retrieved evidence so it reports missing information instead of inventing it.",
+      },
+    ],
   },
 ];
 
