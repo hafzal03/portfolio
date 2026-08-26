@@ -1,6 +1,6 @@
 # Hafzal.dev — Personal Portfolio
 
-Hafzal Ahamed's personal portfolio: a deliberately simple, high-polish site with exactly one
+Hafzal Ahmed's personal portfolio: a deliberately simple, high-polish site with exactly one
 advanced engineering feature — an AI chatbot grounded in the site's own content via
 Retrieval-Augmented Generation (RAG).
 

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
+import { profile } from "@/content/profile";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,44 +23,49 @@ const spaceGrotesk = Space_Grotesk({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hafzal.dev";
 
+const titleTag = `${profile.name} — ${profile.role}`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Hafzal Ahamed — Software Engineer · AI Engineer",
-  description:
-    "Portfolio of Hafzal Ahamed, a software and AI engineer building intelligent software with Python, LLMs, RAG, AI agents, LangChain, LangGraph, and MCP. Featuring Khwarizmi Studio and an AI portfolio assistant.",
+  title: titleTag,
+  description: `Portfolio of ${profile.name} (${profile.legalName}), a software and AI engineer building intelligent software with Python, LLMs, RAG, AI agents, LangChain, LangGraph, and MCP. Featuring Khwarizmi Studio and an AI portfolio assistant.`,
   keywords: [
+    profile.name,
+    profile.legalName,
     "Hafzal Ahamed",
     "Hafzal",
     "Software Engineer",
     "AI Engineer",
+    "Python Developer",
     "Khwarizmi Studio",
     "Qwarizmi Studio",
-    "Python developer",
     "LLM engineer",
     "RAG",
+    "Retrieval-Augmented Generation",
+    "AI Agents",
     "LangChain",
     "LangGraph",
     "Model Context Protocol",
     "MCP",
+    "Informatics",
+    "Computer-Aided Software Engineering",
   ],
-  authors: [{ name: "Hafzal Ahamed" }],
-  creator: "Hafzal Ahamed",
+  authors: [{ name: profile.name }],
+  creator: profile.name,
   icons: {
     icon: "/favicon.ico",
   },
   openGraph: {
     type: "website",
     url: siteUrl,
-    title: "Hafzal Ahamed — Software Engineer · AI Engineer",
-    description:
-      "Building intelligent software with Python, AI, LLMs, RAG, agents, and modern engineering practices.",
-    siteName: "Hafzal Ahamed",
+    title: titleTag,
+    description: profile.tagline,
+    siteName: profile.name,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Hafzal Ahamed — Software Engineer · AI Engineer",
-    description:
-      "Building intelligent software with Python, AI, LLMs, RAG, agents, and modern engineering practices.",
+    title: titleTag,
+    description: profile.tagline,
   },
 };
 

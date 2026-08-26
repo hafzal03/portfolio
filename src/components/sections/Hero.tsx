@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { profile } from "@/content/profile";
-import { HeroVisual } from "./HeroVisual";
+import { Hero3DPanel } from "./Hero3DPanel";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -84,9 +84,8 @@ export function Hero() {
           initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.9, ease: EASE, delay: 0.2 }}
-          className="relative aspect-[7/4] w-full rounded-3xl border border-border bg-bg-elevated/60 p-6"
         >
-          <HeroVisual />
+          <Hero3DPanel />
         </motion.div>
       </div>
     </section>

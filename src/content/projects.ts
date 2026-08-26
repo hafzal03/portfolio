@@ -4,7 +4,8 @@
 //
 // Every fact below is grounded in material Hafzal provided directly, or (for
 // Khwarizmi Studio) verified against the project's own README/PRD/architecture
-// docs. Nothing here is invented.
+// docs. Where a technical detail hasn't been confirmed, it's marked as such
+// rather than invented — search for "to be confirmed" below.
 
 export type ProjectCategory =
   | "AI Engineering"
@@ -18,13 +19,15 @@ export interface Project {
   slug: string;
   name: string;
   category: ProjectCategory;
+  /** Filter facets shown as chips and used by the archive's search/filter UI. */
+  tags: string[];
   tagline: string;
   /** Short card-level description. */
   description: string;
   /** Rich detail-view description, one or more paragraphs. Also feeds the RAG knowledge base. */
   longDescription: string[];
   technologies: string[];
-  /** Only for the flagship project — labelled sub-sections shown in the expanded detail view. */
+  /** Labelled sub-sections shown in the expanded detail view — only included when there's real information for them. */
   breakdown?: { heading: string; body: string }[];
   status?: string;
   featured?: boolean;
@@ -37,6 +40,7 @@ export const projects: Project[] = [
     slug: "khwarizmi-studio",
     name: "Khwarizmi Studio",
     category: "AI Engineering",
+    tags: ["AI", "Python", "Cloud", "Software Engineering", "Web"],
     tagline: "An AI Engineer that ships real code into your own GitHub repo",
     description:
       "An AI-native studio where you describe what you want to build, and an AI Engineer agent designs, builds, tests, and ships it as real, working code — into your own GitHub repository, deployed to Azure. No throwaway output, no black box: every change is a reviewable pull request.",
@@ -64,20 +68,20 @@ export const projects: Project[] = [
     featured: true,
     breakdown: [
       {
-        heading: "What problem does it solve?",
-        body: "AI website/app builders today produce disposable output — code you can't take with you, can't run through your own CI/CD, and can't hand to another engineer. Khwarizmi Studio is built around the opposite premise: the AI Engineer works inside your own GitHub repository and cloud account from the first commit, using the same engineering discipline (tests, CI, reviewable PRs) a human collaborator would.",
+        heading: "What it is, and why it exists",
+        body: "AI website/app builders today produce disposable output — code you can't take with you, can't run through your own CI/CD, and can't hand to another engineer. Khwarizmi Studio is built around the opposite premise: an AI Engineer agent works inside your own GitHub repository and cloud account from the first commit, using the same engineering discipline (tests, CI, reviewable PRs) a human collaborator would. Hafzal built it to understand — and demonstrate — how a real AI application is constructed around an LLM, rather than treating the LLM as the entire application.",
       },
       {
-        heading: "Agent core",
-        body: "A Plan → Act → Verify → Report state machine with a human-approval boundary. The LLM (provider-neutral: Anthropic and Gemini adapters, plus a deterministic fake provider for testing) only ever produces a structured Plan — it never executes anything directly. A bounded, budget-limited, allow-listed tool-calling loop carries the plan out.",
+        heading: "How the LLM fits into the architecture",
+        body: "The LLM is deliberately kept out of the execution path. A Plan → Act → Verify → Report state machine, with a human-approval boundary, is the actual orchestrator. The LLM (provider-neutral: Anthropic and Gemini adapters, plus a deterministic fake provider for testing) only ever produces a structured Plan — it never executes anything directly. A bounded, budget-limited, allow-listed tool-calling loop then carries that plan out.",
       },
       {
-        heading: "MCP tools",
-        body: "Agent-facing capabilities are unified behind a ToolRegistry and exposed as MCP tools, used specifically where the agent itself is deciding to take an action: a Sandbox MCP server (list_files, read_file, search_files, write_file, run_build, run_tests — allow-listed, logged with full diffs), a GitHub MCP server (create_repo, commit, open_pr — human-confirmation-gated), and a RAG-backed Repository Search MCP for indexed codebases.",
-      },
-      {
-        heading: "RAG — Repository Intelligence",
+        heading: "How RAG and Repository Intelligence work",
         body: "Retrieval-Augmented Generation grounds the agent's understanding of a connected codebase: information is chunked, embedded, and retrieved via pgvector inside the existing Postgres instance — deliberately no separate vector database. This lets the agent answer questions about, and act on, an existing repository's real structure and conventions rather than guessing.",
+      },
+      {
+        heading: "How agents, tools, and MCP fit together",
+        body: "Agent-facing capabilities are unified behind a ToolRegistry and exposed as MCP (Model Context Protocol) tools, used specifically where the agent itself is deciding to take an action: a Sandbox MCP server (list_files, read_file, search_files, write_file, run_build, run_tests — allow-listed, logged with full diffs), a GitHub MCP server (create_repo, commit, open_pr — human-confirmation-gated), and a RAG-backed Repository Search MCP for indexed codebases. This is the concrete mechanism behind \"AI agents\" and \"tool calling\" in Hafzal's work: structured, permissioned interfaces rather than an agent with unrestricted access.",
       },
       {
         heading: "Sandboxed execution & safety",
@@ -88,8 +92,78 @@ export const projects: Project[] = [
         body: "Ships to Azure behind a DeploymentProvider interface, with GitHub Actions running backend (ruff, mypy --strict, pytest) and frontend (eslint, vitest, tsc + build) checks on every change. Evaluation dashboards track 21 metrics across 10 deterministic scenarios per project.",
       },
       {
+        heading: "What Hafzal personally implemented",
+        body: "The agent core state machine, the MCP tool boundary and its allow-list/confirmation policy, the RAG-backed Repository Intelligence pipeline, the sandbox execution model, the CI/CD pipeline, and the Azure deployment integration. Python and FastAPI on the backend, React/TypeScript/Vite on the frontend.",
+      },
+      {
         heading: "Current status & lessons learned",
         body: "Khwarizmi Studio is a release candidate, not yet declared production-ready — honestly, by design. Building the pre-publish verification gate and the MCP permission boundary taught the most: giving an LLM real write access to a user's repository requires the platform, not the model, to be the authority over every irreversible action. Remaining work includes a clean real-provider end-to-end run (prepared, pending approval to spend real model quota) and finishing live Azure subscription testing for the deployment provider.",
+      },
+    ],
+  },
+  {
+    slug: "masters-thesis-case",
+    name: "Information System for Computer-Aided Software Engineering",
+    category: "Academic & Research",
+    tags: ["Thesis", "Academic", "Python", "Web", "Database", "Software Engineering", "Research"],
+    tagline: "Master's thesis — a web-based CASE and project-management system",
+    description:
+      "Hafzal's Master's thesis at the Technical University of Košice: a web-based information system supporting Computer-Aided Software Engineering (CASE) and project management, built with Python and Flask.",
+    longDescription: [
+      "Hafzal's Master's thesis, Information System for Computer-Aided Software Engineering, was completed at the Technical University of Košice, Faculty of Electrical Engineering and Informatics. It focuses on the design and implementation of a web-based information system supporting CASE and project-management activities.",
+      "The objective was to analyze the current state of CASE tools and requirements-management approaches, then develop a lightweight system demonstrating key CASE concepts: requirement management, dependency tracking, project planning, and responsibility assignment. The research included an analysis of modern CASE environments, requirements engineering methods, and techniques used for project scheduling and traceability management.",
+      "Based on that analysis, a web-based prototype was designed and implemented using Python, Flask, a relational database, and web interface technologies. The system was implemented and tested against several functional scenarios to verify correctness of its modules and the readability of its dependency-management mechanisms.",
+    ],
+    technologies: ["Python", "Flask", "Relational Database", "Web Interface Technologies"],
+    featured: true,
+    breakdown: [
+      {
+        heading: "Problem",
+        body: "Software projects need a way to manage requirements, track dependencies between them, assign responsibility, and schedule work — but many CASE tools are either heavyweight commercial platforms or absent entirely from smaller academic and educational contexts.",
+      },
+      {
+        heading: "Research",
+        body: "An analysis of modern CASE environments, requirements-engineering methods, and project-scheduling/traceability-management techniques, used to establish what a lightweight system would need to demonstrate to be a credible educational example of the field.",
+      },
+      {
+        heading: "System objectives",
+        body: "Develop a lightweight web-based system demonstrating core CASE concepts — requirement management, dependency tracking, project planning, and responsibility assignment — as an accessible, simplified environment rather than a full commercial CASE platform.",
+      },
+      {
+        heading: "Requirements management",
+        body: "Users can create and manage project requirements within the system.",
+      },
+      {
+        heading: "Dependency management & circular dependency detection",
+        body: "The system supports defining dependencies between requirements and includes detection of circular dependencies — an essential correctness check for any dependency graph used in real project planning.",
+      },
+      {
+        heading: "Responsibility assignment & incidence matrix",
+        body: "Project responsibility can be assigned using an incidence matrix, connecting requirements/tasks to the people responsible for them.",
+      },
+      {
+        heading: "Project scheduling & Gantt charts",
+        body: "The system generates project schedules and Gantt charts from the underlying requirement and dependency data.",
+      },
+      {
+        heading: "Glossary & import/export",
+        body: "A glossary of project terminology is maintained within the system, and projects can be imported and exported using structured formats.",
+      },
+      {
+        heading: "Technology stack & implementation",
+        body: "Built with Python and Flask on the backend, a relational database for persistence, and web interface technologies for the frontend. (Specific database engine and frontend framework beyond \"web interface technologies\" — to be confirmed.)",
+      },
+      {
+        heading: "Testing",
+        body: "The system was tested using several functional scenarios designed to verify the correctness of its implemented modules and the readability of its dependency-management mechanisms.",
+      },
+      {
+        heading: "Results & academic significance",
+        body: "The results demonstrated that the proposed system successfully supports essential CASE activities and provides an educational demonstration of software engineering and project-management concepts in a simplified, accessible environment. The thesis represents Hafzal's academic foundation in software engineering and information systems, prior to his later, more advanced AI engineering work.",
+      },
+      {
+        heading: "Engineering lessons learned",
+        body: "Requirements management is inseparable from dependency correctness — a requirements system without circular-dependency detection can silently produce an unschedulable project. Building the incidence-matrix-based responsibility assignment also reinforced that project management tooling has to model both the technical structure (requirements, dependencies) and the human structure (who owns what) as first-class, connected data.",
       },
     ],
   },
@@ -97,6 +171,7 @@ export const projects: Project[] = [
     slug: "pd-vesture",
     name: "PD_VESTURE",
     category: "Web Development",
+    tags: ["Web", "AI"],
     tagline: "A luxury fashion e-commerce experience",
     description:
       "A modern, visually sophisticated digital shopping experience for a luxury fashion brand — built with Next.js, React, TypeScript, Tailwind CSS, and Framer Motion.",
@@ -108,29 +183,30 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    slug: "masters-thesis-case",
-    name: "Information Systems Based on CASE (Master's Thesis)",
-    category: "Academic & Research",
-    tagline: "Master's-level research in Computer-Aided Software Engineering",
+    slug: "case-based-system",
+    name: "Case-Based System",
+    category: "Software Engineering",
+    tags: ["Software Engineering", "Academic", "Research"],
+    tagline: "Software engineering work connected to Hafzal's broader CASE-tool background",
     description:
-      "Hafzal's Master's thesis — independent academic research into information systems and Computer-Aided Software Engineering (CASE): system analysis, system design, and computer-aided approaches to software development.",
+      "A project connected to Hafzal's software-engineering and CASE-tool background, kept as a separate entry from the Master's thesis.",
     longDescription: [
-      "Hafzal's Master's thesis, titled Information Systems Based on Computer-Aided Software Engineering, is a complete piece of independent academic and research work — his academic foundation in software engineering and information systems before his later move into modern AI engineering.",
-      "It covers the research problem and objectives, the methodology used, the system analysis and design work, implementation where applicable, evaluation of results, and conclusions and future directions for the research.",
+      "Case-Based System is part of Hafzal's broader software-engineering and CASE-tool background, distinct from the Master's thesis (Information System for Computer-Aided Software Engineering). Technical implementation details for this project are to be confirmed.",
     ],
-    technologies: ["Systems Analysis", "Software Engineering Methodology", "CASE Tools"],
-    featured: true,
+    technologies: [],
+    archived: true,
   },
   {
     slug: "docker-kubernetes-deployment",
     name: "Docker & Kubernetes Deployment",
     category: "DevOps & Cloud",
+    tags: ["Docker", "Kubernetes", "Cloud", "Software Engineering"],
     tagline: "Containerization and orchestration in practice",
     description:
       "Hands-on work with Docker containerization and Kubernetes orchestration — packaging applications, and deploying and managing them across a container platform.",
     longDescription: [
       "This work covers Docker, Linux, containers, application packaging, and deployment concepts, extending into Kubernetes services and orchestration — understanding how applications are packaged into containers and how those containerized applications are deployed and managed at scale.",
-      "It represents a bridge between traditional application development and modern deployment practice, and forms part of the DevOps foundation behind Khwarizmi Studio's own sandboxed, containerized agent execution.",
+      "It represents a bridge between traditional application development and modern deployment practice, and forms part of the DevOps foundation behind Khwarizmi Studio's own sandboxed, containerized agent execution. (Specific deployment targets and cluster configuration used — to be confirmed.)",
     ],
     technologies: ["Docker", "Kubernetes", "Linux", "Containers"],
     featured: true,
@@ -139,6 +215,7 @@ export const projects: Project[] = [
     slug: "face-recognition-attendance",
     name: "Face Recognition Attendance System",
     category: "Computer Vision & ML",
+    tags: ["AI", "Python", "Academic"],
     tagline: "Automating attendance with facial recognition",
     description:
       "A computer-vision project using facial recognition to automate attendance management — an early, practical application of AI to a real-world workflow.",
@@ -153,6 +230,7 @@ export const projects: Project[] = [
     slug: "resume-classifier",
     name: "Resume Classifier Web Application",
     category: "AI Engineering",
+    tags: ["AI", "Python", "Web"],
     tagline: "A web app that classifies resumes automatically",
     description:
       "A web application that takes user-provided resumes, processes them, and applies classification logic to return a useful result.",
@@ -167,11 +245,12 @@ export const projects: Project[] = [
     slug: "toll-plaza-management",
     name: "Toll Plaza Management System",
     category: "Software Engineering",
+    tags: ["Java", "Software Engineering", "Academic"],
     tagline: "An early Java application project",
     description:
       "A Java-based system for managing toll plaza operations — object-oriented design, application logic, and workflow modelling.",
     longDescription: [
-      "One of Hafzal's earliest software-development projects, built in Java to manage the operations of a toll plaza. It demonstrates early experience with object-oriented programming, application logic, data handling, and translating a real-world operational problem into defined entities, processes, and system workflows.",
+      "One of Hafzal's earliest software-development projects, built in Java to manage the operations of a toll plaza. It demonstrates early experience with object-oriented programming, application logic, data handling, and translating a real-world operational problem into defined entities, processes, and system workflows. Specific feature-level implementation details are to be confirmed.",
     ],
     technologies: ["Java", "Object-Oriented Programming"],
     archived: true,
@@ -180,12 +259,13 @@ export const projects: Project[] = [
     slug: "client-server-cpp",
     name: "Client-Server Communication in C++",
     category: "Software Engineering",
+    tags: ["C++", "Networking", "Systems", "Academic"],
     tagline: "Networked application programming in C++",
     description:
-      "A networking project exploring client-server architecture in C++, including secure/encrypted communication between client and server.",
+      "A networking project exploring client-server architecture in C++, including communication between client and server.",
     longDescription: [
-      "This project covers establishing communication between a client and a server over a network, exchanging information, handling requests and responses, and building a working networked application — including work on secure/encrypted communication, protocols, and data exchange.",
-      "It shows that Hafzal's technical development wasn't limited to web development or AI — he also worked with lower-level software and networking concepts.",
+      "This project covers establishing communication between a client and a server over a network, exchanging information, and building a working networked application using C++ and client-server architecture and systems-programming concepts.",
+      "It shows that Hafzal's technical development wasn't limited to web development or AI — he also worked with lower-level software and networking concepts. Specific protocols, ports, concurrency model, authentication, encryption, and any database integration used — to be confirmed.",
     ],
     technologies: ["C++", "Networking", "Client-Server Architecture"],
     archived: true,
@@ -194,6 +274,7 @@ export const projects: Project[] = [
     slug: "requirements-management-system",
     name: "Requirements Management System",
     category: "Software Engineering",
+    tags: ["Software Engineering", "Academic", "Database"],
     tagline: "Managing the software requirements lifecycle",
     description:
       "A system focused on managing software requirements and the information associated with them throughout the development lifecycle.",
@@ -207,6 +288,7 @@ export const projects: Project[] = [
     slug: "parallel-matrix-multiplication",
     name: "Parallel Matrix Multiplication",
     category: "Academic & Research",
+    tags: ["Academic", "Systems", "Research"],
     tagline: "Dividing a computationally intensive operation across processors",
     description:
       "Exploring how matrix multiplication can be divided into concurrent work instead of executed purely sequentially.",
@@ -220,6 +302,7 @@ export const projects: Project[] = [
     slug: "parallel-edge-detection",
     name: "Parallel Edge Detection",
     category: "Computer Vision & ML",
+    tags: ["AI", "Academic", "Systems"],
     tagline: "Image edge detection with parallel processing",
     description:
       "Applying edge-detection techniques to images while exploring parallel processing for performance.",
@@ -233,6 +316,7 @@ export const projects: Project[] = [
     slug: "ct-image-processing",
     name: "CT Image Processing",
     category: "Computer Vision & ML",
+    tags: ["AI", "Academic"],
     tagline: "Processing and analyzing medical CT imagery",
     description:
       "A medical-image-processing project involving the processing and analysis of CT images.",
@@ -246,6 +330,7 @@ export const projects: Project[] = [
     slug: "cloud-infrastructure",
     name: "Cloud Infrastructure Project",
     category: "DevOps & Cloud",
+    tags: ["Cloud", "Networking", "Systems"],
     tagline: "Infrastructure, deployment, and cloud environments",
     description:
       "Work and learning around cloud infrastructure — deployment, services, networking, application hosting, and configuration.",
@@ -259,6 +344,7 @@ export const projects: Project[] = [
     slug: "cloud-deployment-hosting",
     name: "Cloud Deployment and Hosting",
     category: "DevOps & Cloud",
+    tags: ["Cloud"],
     tagline: "Taking an application from local dev to hosted and reachable",
     description:
       "Deploying and hosting applications in cloud environments — configuring deployment components and understanding the relationship between code, infrastructure, and hosting.",
@@ -272,6 +358,7 @@ export const projects: Project[] = [
     slug: "devops-practice",
     name: "DevOps Practice",
     category: "DevOps & Cloud",
+    tags: ["Docker", "Kubernetes", "Cloud", "Software Engineering"],
     tagline: "Git, CI/CD, and delivery practice",
     description:
       "Hands-on learning in Git, GitHub, version control, build processes, automated testing, deployment workflows, and CI/CD concepts.",
@@ -285,6 +372,7 @@ export const projects: Project[] = [
     slug: "networking-laboratory",
     name: "Networking Laboratory",
     category: "Academic & Research",
+    tags: ["Networking", "Systems", "Academic"],
     tagline: "Academic networking coursework and experiments",
     description:
       "Practical exploration of computer networks, communication, client-server architecture, and networking protocols.",
@@ -298,6 +386,7 @@ export const projects: Project[] = [
     slug: "database-projects",
     name: "Database Projects",
     category: "Software Engineering",
+    tags: ["Database", "Academic", "Software Engineering"],
     tagline: "Academic and applied database work",
     description:
       "A collection of academic and software-development work involving databases, SQL, and structured data storage/retrieval.",
@@ -311,6 +400,7 @@ export const projects: Project[] = [
     slug: "system-linux-administration",
     name: "System & Linux Administration Practice",
     category: "DevOps & Cloud",
+    tags: ["Systems", "Cloud"],
     tagline: "Operating systems, Linux, and environment configuration",
     description:
       "Hands-on exposure to Linux environments, command-line operations, system administration, and configuration.",
@@ -324,17 +414,20 @@ export const projects: Project[] = [
     slug: "hafzal-portfolio",
     name: "Hafzal.dev — This Portfolio",
     category: "Web Development",
+    tags: ["Web", "AI", "Cloud", "Software Engineering"],
     tagline: "A production deployment case study, not just a résumé",
     description:
-      "This site: a Next.js portfolio with a RAG-powered AI chatbot, deployed to Azure via GitHub Actions CI/CD — deliberately simple everywhere except the one advanced feature.",
+      "This site: a Next.js portfolio with a RAG-powered AI chatbot, deployed to Azure Static Web Apps via GitHub Actions CI/CD — deliberately simple everywhere except the one advanced feature.",
     longDescription: [
       "The portfolio you're looking at is itself a project: a deliberately simple, high-polish personal site — no unnecessary microservices, no unnecessary databases — with exactly one advanced engineering feature, a Retrieval-Augmented Generation chatbot that answers questions about Hafzal grounded in this site's own content.",
-      "It demonstrates the full lifecycle: GitHub-based development, automated linting/testing/build via GitHub Actions, and deployment to Microsoft Azure.",
+      "It demonstrates the full lifecycle: GitHub-based development, automated linting/testing/build via GitHub Actions, and deployment to Microsoft Azure Static Web Apps.",
     ],
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "OpenAI API", "Azure", "GitHub Actions"],
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "OpenAI API", "Azure Static Web Apps", "GitHub Actions"],
     archived: true,
   },
 ];
 
 export const featuredProjects = projects.filter((p) => p.featured);
 export const archivedProjects = projects.filter((p) => p.archived);
+
+export const allTags = Array.from(new Set(projects.flatMap((p) => p.tags))).sort();

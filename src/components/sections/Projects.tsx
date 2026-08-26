@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
-import { projects, featuredProjects, archivedProjects, type Project } from "@/content/projects";
+import { ArrowUpRight, ChevronDown, X } from "lucide-react";
+import {
+  projects,
+  featuredProjects,
+  archivedProjects,
+  allTags,
+  type Project,
+} from "@/content/projects";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProjectDetail } from "./ProjectDetail";
@@ -11,8 +17,8 @@ import { cn } from "@/lib/utils";
 
 const GRID_SPAN: Record<string, string> = {
   "khwarizmi-studio": "col-span-2 row-span-2",
-  "pd-vesture": "col-span-2 row-span-1",
-  "masters-thesis-case": "col-span-1 row-span-1",
+  "masters-thesis-case": "col-span-2 row-span-1",
+  "pd-vesture": "col-span-1 row-span-1",
   "docker-kubernetes-deployment": "col-span-1 row-span-1",
   "face-recognition-attendance": "col-span-2 row-span-1",
 };
@@ -79,58 +85,133 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: (p: Projec
   );
 }
 
+function ProjectListRow({ project, onOpen }: { project: Project; onOpen: (p: Project) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(project)}
+      className="focus-ring flex w-full flex-col gap-1 rounded-xl border border-border bg-bg-elevated/30 p-4 text-left transition-colors hover:border-border-strong hover:bg-bg-elevated"
+    >
+      <p className="font-mono text-[10px] tracking-[0.15em] text-fg-subtle uppercase">
+        {project.category}
+      </p>
+      <p className="font-display text-sm font-semibold text-fg">{project.name}</p>
+      <p className="text-xs text-fg-subtle">{project.tagline}</p>
+      <div className="mt-1 flex flex-wrap gap-1">
+        {project.tags.map((t) => (
+          <span
+            key={t}
+            className="rounded-full border border-border bg-bg-elevated-2 px-2 py-0.5 font-mono text-[9px] text-fg-subtle"
+          >
+            {t}
+          </span>
+        ))}
+      </div>
+    </button>
+  );
+}
+
 export function Projects() {
   const [selected, setSelected] = useState<Project | null>(null);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+
+  const toggleTag = (tag: string) => {
+    setActiveTags((tags) =>
+      tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag]
+    );
+  };
+
+  const filteredProjects = useMemo(() => {
+    if (activeTags.length === 0) return null;
+    return projects.filter((p) => p.tags.some((t) => activeTags.includes(t)));
+  }, [activeTags]);
 
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 py-24 md:py-32">
       <SectionHeading
         eyebrow="Projects"
         title="Selected work"
-        description="Khwarizmi Studio is the flagship — everything else traces the path that led there."
+        description="Khwarizmi Studio is the flagship — everything else traces the path that led there. Filter by technology to search the complete archive."
       />
 
-      <div className="grid grid-cols-2 auto-rows-[200px] grid-flow-dense gap-5 md:grid-cols-4 md:auto-rows-[210px]">
-        {featuredProjects.map((project) => (
-          <ProjectCard key={project.slug} project={project} onOpen={setSelected} />
+      <Reveal className="mb-8 flex flex-wrap gap-2">
+        {allTags.map((tag) => (
+          <button
+            key={tag}
+            type="button"
+            onClick={() => toggleTag(tag)}
+            aria-pressed={activeTags.includes(tag)}
+            className={cn(
+              "focus-ring rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors",
+              activeTags.includes(tag)
+                ? "border-accent/60 bg-accent-soft text-accent"
+                : "border-border bg-bg-elevated/40 text-fg-subtle hover:border-border-strong hover:text-fg"
+            )}
+          >
+            {tag}
+          </button>
         ))}
-      </div>
+        {activeTags.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setActiveTags([])}
+            className="focus-ring inline-flex items-center gap-1 rounded-full border border-border px-3.5 py-1.5 font-mono text-xs text-fg-subtle transition-colors hover:text-fg"
+          >
+            <X size={12} />
+            Clear
+          </button>
+        )}
+      </Reveal>
 
-      <div className="mt-10">
-        <button
-          type="button"
-          onClick={() => setArchiveOpen((o) => !o)}
-          className="focus-ring inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
-          aria-expanded={archiveOpen}
-        >
-          {archiveOpen ? "Hide" : "View"} complete project archive ({archivedProjects.length})
-          <ChevronDown
-            size={16}
-            className={cn("transition-transform", archiveOpen && "rotate-180")}
-          />
-        </button>
-
-        {archiveOpen && (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {archivedProjects.map((project) => (
+      {filteredProjects ? (
+        <div>
+          <p className="mb-4 text-sm text-fg-subtle">
+            {filteredProjects.length} project{filteredProjects.length === 1 ? "" : "s"} match
+            {filteredProjects.length === 1 ? "es" : ""} {activeTags.join(", ")}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredProjects.map((project) => (
               <Reveal key={project.slug}>
-                <button
-                  type="button"
-                  onClick={() => setSelected(project)}
-                  className="focus-ring flex w-full flex-col gap-1 rounded-xl border border-border bg-bg-elevated/30 p-4 text-left transition-colors hover:border-border-strong hover:bg-bg-elevated"
-                >
-                  <p className="font-mono text-[10px] tracking-[0.15em] text-fg-subtle uppercase">
-                    {project.category}
-                  </p>
-                  <p className="font-display text-sm font-semibold text-fg">{project.name}</p>
-                  <p className="text-xs text-fg-subtle">{project.tagline}</p>
-                </button>
+                <ProjectListRow project={project} onOpen={setSelected} />
               </Reveal>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 auto-rows-[200px] grid-flow-dense gap-5 md:grid-cols-4 md:auto-rows-[210px]">
+            {featuredProjects.map((project) => (
+              <ProjectCard key={project.slug} project={project} onOpen={setSelected} />
+            ))}
+          </div>
+
+          <div className="mt-10">
+            <button
+              type="button"
+              onClick={() => setArchiveOpen((o) => !o)}
+              className="focus-ring inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+              aria-expanded={archiveOpen}
+            >
+              {archiveOpen ? "Hide" : "View"} complete project archive ({archivedProjects.length})
+              <ChevronDown
+                size={16}
+                className={cn("transition-transform", archiveOpen && "rotate-180")}
+              />
+            </button>
+
+            {archiveOpen && (
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {archivedProjects.map((project) => (
+                  <Reveal key={project.slug}>
+                    <ProjectListRow project={project} onOpen={setSelected} />
+                  </Reveal>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       <ProjectDetail project={selected} onClose={() => setSelected(null)} />
     </section>

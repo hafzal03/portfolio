@@ -53,12 +53,14 @@ export function HeroVisual() {
             />
             {!shouldReduceMotion && (
               <motion.circle
+                cx={from.x}
+                cy={from.y}
                 r={3}
                 fill="var(--color-accent)"
-                initial={{ opacity: 0 }}
+                initial={{ x: 0, y: 0, opacity: 0 }}
                 animate={{
-                  cx: [from.x, to.x],
-                  cy: [from.y, to.y],
+                  x: [0, to.x - from.x],
+                  y: [0, to.y - from.y],
                   opacity: [0, 1, 1, 0],
                 }}
                 transition={{
@@ -74,22 +76,24 @@ export function HeroVisual() {
         );
       })}
 
-      {NODES.map((node, i) => (
+      {/* The "core" node is rendered as a floating 3D HTML badge above this
+          plane (see Hero3DPanel) — skipped here to avoid a duplicate label. */}
+      {NODES.filter((n) => n.id !== "core").map((node, i) => (
         <g key={node.id}>
           <motion.circle
             cx={node.x}
             cy={node.y}
-            r={node.id === "core" ? 30 : 22}
+            r={22}
             fill="var(--color-bg-elevated)"
-            stroke={node.id === "core" ? "var(--color-accent)" : "var(--color-border-strong)"}
-            strokeWidth={node.id === "core" ? 1.5 : 1}
+            stroke="var(--color-border-strong)"
+            strokeWidth={1}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.15 + i * 0.06, ease: [0.16, 1, 0.3, 1] as const }}
           />
           <text
             x={node.x}
-            y={node.y + (node.id === "core" ? 48 : 40)}
+            y={node.y + 40}
             textAnchor="middle"
             fontFamily="var(--font-mono)"
             fontSize="10"

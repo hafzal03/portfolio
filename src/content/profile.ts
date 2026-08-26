@@ -1,24 +1,30 @@
 // Single source of truth for Hafzal's identity/summary.
 // Read by both the UI (Hero/About) and the RAG knowledge base — update here only.
+//
+// Naming note: displayed as "Hafzal Ahmed" (matches hafzal.dev / github.com/hafzal03).
+// Full legal name is preserved separately since it appears differently across
+// historical certificates (see content/courses.ts) — never silently rewritten.
 
 export const profile = {
-  name: "Hafzal Ahamed",
+  name: "Hafzal Ahmed",
+  legalName: "Hafizal Ahmed Hassan Mohammed",
   role: "Software Engineer · AI Engineer",
   tagline:
     "Building intelligent software with Python, AI, LLMs, RAG, agents, and modern engineering practices.",
-  summary: `Hafzal Ahamed is a software and AI engineer whose work spans traditional
-software engineering and modern AI application development. His technical
-foundation includes Java, C++, networking, databases, parallel computing, and
-computer vision, built through academic and independent projects. That
-foundation extended into backend development, cloud infrastructure, and
-DevOps practice with Docker and Kubernetes, and more recently into AI
-engineering: large language models, Retrieval-Augmented Generation,
-structured/tabular data workflows, AI agents, and the Model Context Protocol
-(MCP). His most advanced project, Khwarizmi Studio, is an AI-native studio
-where an AI Engineer agent designs, builds, tests, and ships real code into a
-user's own GitHub repository and cloud environment — bringing together LLM
-orchestration, RAG-backed repository intelligence, MCP tools, sandboxed
-execution, and Azure deployment into one system.`,
+  summary: `Hafzal Ahmed is a software and AI engineer whose background combines formal study in
+computer applications and informatics with hands-on engineering work. His academic foundation —
+a Bachelor of Computer Applications and a Master's in Informatics — covered programming,
+databases, software engineering, networking, cloud technologies, and information security. His
+current engineering work centers on AI application development: large language models,
+Retrieval-Augmented Generation, AI agents, workflow orchestration, and the Model Context Protocol
+(MCP). His most advanced project, Khwarizmi Studio, is an AI-native studio where an AI Engineer
+agent designs, builds, tests, and ships real code into a user's own GitHub repository and cloud
+environment — bringing together LLM orchestration, RAG-backed repository intelligence, MCP tools,
+sandboxed execution, and Azure deployment into one system.`,
+  // Deliberately distinguishes what's practiced day-to-day from what was studied — see the
+  // About section's "Academic knowledge vs. hands-on experience" framing and skills.ts tiers.
+  distinctionNote:
+    "This site distinguishes hands-on engineering (things actually built), current AI engineering (Khwarizmi Studio and related work), academic knowledge (studied during the BCA and Master's), and formal training/certification — rather than presenting every studied subject as professional expertise.",
   focusAreas: [
     "Software Engineering",
     "AI Engineering",
@@ -32,8 +38,4 @@ execution, and Azure deployment into one system.`,
     "API Development",
     "AI Workflows & Orchestration",
   ],
-  // Left intentionally minimal — no university/dates were provided, and we do not invent them.
-  // The Master's-level thesis work is represented as a full project entry instead (see projects.ts).
-  educationNote:
-    "Master's-level academic research in Information Systems and Computer-Aided Software Engineering (CASE) — see the full project write-up.",
 } as const;

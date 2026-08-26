@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Mail, Copy, Check } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/icons";
 import { contact } from "@/content/contact";
+import { profile } from "@/content/profile";
 import { Reveal } from "@/components/ui/Reveal";
 
 export function Contact() {
@@ -80,7 +81,7 @@ export function Contact() {
 
       <Reveal delay={0.25}>
         <p className="mt-16 border-t border-border pt-8 text-xs text-fg-subtle">
-          © {new Date().getFullYear()} Hafzal Ahamed. Built with Next.js, deployed on Azure.
+          © {new Date().getFullYear()} {profile.name}. Built with Next.js, deployed on Azure.
         </p>
       </Reveal>
     </section>

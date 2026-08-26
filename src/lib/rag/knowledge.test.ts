@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { buildKnowledgeChunks } from "./knowledge";
 import { projects } from "@/content/projects";
+import { courses } from "@/content/courses";
+import { degrees } from "@/content/education";
 
 describe("buildKnowledgeChunks", () => {
   const chunks = buildKnowledgeChunks();
@@ -27,8 +29,35 @@ describe("buildKnowledgeChunks", () => {
     expect(flagship?.text).toContain("Model Context Protocol (MCP)");
   });
 
-  it("does not fabricate course certificates when none are provided", () => {
-    const coursesChunk = chunks.find((c) => c.id === "courses");
-    expect(coursesChunk?.text).toContain("being finalized");
+  it("preserves the AWS training-vs-certification-exam distinction verbatim, marked IMPORTANT", () => {
+    const awsCourse = courses.find((c) => c.name.toLowerCase().includes("aws"));
+    expect(awsCourse).toBeDefined();
+    const awsChunk = chunks.find((c) => c.source.includes(awsCourse!.name));
+    expect(awsChunk).toBeDefined();
+    expect(awsChunk?.text).toContain("IMPORTANT:");
+    expect(awsChunk?.text).toContain("not the official AWS certification exam credential");
+  });
+
+  it("preserves each certificate's original recorded name, distinct from the site's display name", () => {
+    for (const course of courses) {
+      if (!course.certificateName) continue;
+      const chunk = chunks.find((c) => c.source.includes(course.name));
+      expect(chunk?.text).toContain(course.certificateName);
+    }
+  });
+
+  it("includes both degrees with their coursework, framed as academic exposure not mastery", () => {
+    for (const degree of degrees) {
+      const chunk = chunks.find((c) => c.id === `education-${degree.slug}`);
+      expect(chunk).toBeDefined();
+      expect(chunk?.text).toContain(degree.institution);
+      expect(chunk?.text).toContain("not a claim of professional mastery");
+    }
+  });
+
+  it("does not invent unconfirmed technical details for the Case-Based System project", () => {
+    const chunk = chunks.find((c) => c.id === "project-case-based-system");
+    expect(chunk).toBeDefined();
+    expect(chunk?.text).toContain("to be confirmed");
   });
 });

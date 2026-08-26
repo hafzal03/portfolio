@@ -11,6 +11,9 @@ export function About() {
       <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr]">
         <Reveal delay={0.1}>
           <p className="text-balance text-lg leading-relaxed text-fg-muted">{profile.summary}</p>
+          <p className="mt-6 rounded-xl border border-border bg-bg-elevated/40 p-4 text-sm leading-relaxed text-fg-subtle">
+            {profile.distinctionNote}
+          </p>
         </Reveal>
 
         <Reveal delay={0.2}>
