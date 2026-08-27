@@ -31,7 +31,7 @@ export const courses: Course[] = [
     topics: ["C++ Programming"],
     date: "February–March 2017",
     grade: "Second Class",
-    certificateName: "Hafizal Ahmed Haj",
+    certificateName: "Hafzal Ahamed",
     notes:
       "A formal C++ programming certificate demonstrating academic/training exposure to C++ — not a claim of professional C++ development experience.",
   },
@@ -41,7 +41,7 @@ export const courses: Course[] = [
     program: "Value-added course, Bachelor of Computer Applications (Third BCA B)",
     topics: ["PC Hardware", "Troubleshooting"],
     grade: "A",
-    certificateName: "Hafizal Ahmed Haj",
+    certificateName: "Hafzal Ahamed",
     notes: "Value-added academic course; detailed syllabus is not documented beyond the certificate title.",
   },
   {
@@ -50,7 +50,7 @@ export const courses: Course[] = [
     program: "Training ID 2489",
     topics: ["AWS Solutions Architecture (training)"],
     date: "August–September 2022",
-    certificateName: "Hafizal Ahmed Haj",
+    certificateName: "Hafzal Ahamed",
     notes:
       "This documents completed AWS Solutions Architect – Associate training through CSTech/SYSTECH, not the official AWS certification exam credential. It should not be presented as having passed the AWS certification exam unless separate proof of that result is provided.",
   },

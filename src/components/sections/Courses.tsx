@@ -1,4 +1,5 @@
 import { courses, coursesPlaceholder } from "@/content/courses";
+import { profile } from "@/content/profile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 
@@ -46,7 +47,9 @@ export function Courses() {
                 <p className="mt-4 text-xs leading-relaxed text-fg-subtle">{course.notes}</p>
               )}
 
-              {course.certificateName && (
+              {/* Only surfaced when the certificate carries a different name
+                  from the one used across the rest of the site. */}
+              {course.certificateName && course.certificateName !== profile.name && (
                 <p className="mt-4 border-t border-border pt-3 text-[11px] text-fg-subtle">
                   Certificate name on record:{" "}
                   <span className="font-mono text-fg-muted">{course.certificateName}</span>

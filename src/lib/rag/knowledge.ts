@@ -92,7 +92,13 @@ export function buildKnowledgeChunks(): KnowledgeChunk[] {
         // credential) that the chatbot must never drop or paraphrase away.
         text: `Certification/course: ${course.name}. ${details}. Topics: ${course.topics.join(", ")}.${
           course.notes ? ` IMPORTANT: ${course.notes}` : ""
-        }${course.certificateName ? ` (Certificate is issued in the name "${course.certificateName}", from before ${profile.name} adopted his current professional name spelling.)` : ""}`,
+        }${
+          // Only worth explaining when the certificate really is issued under a
+          // different name — otherwise this contradicts itself.
+          course.certificateName && course.certificateName !== profile.name
+            ? ` (Certificate is issued in the name "${course.certificateName}", which differs from the professional name ${profile.name} uses today.)`
+            : ""
+        }`,
       });
     }
   } else {

@@ -167,21 +167,21 @@ export const projects: Project[] = [
       },
     ],
   },
-  {
-    slug: "pd-vesture",
-    name: "PD_VESTURE",
-    category: "Web Development",
-    tags: ["Web", "AI"],
-    tagline: "A luxury fashion e-commerce experience",
-    description:
-      "A modern, visually sophisticated digital shopping experience for a luxury fashion brand — built with Next.js, React, TypeScript, Tailwind CSS, and Framer Motion.",
-    longDescription: [
-      "PD_VESTURE is a modern web-development and e-commerce-oriented project focused on creating a luxury fashion website and digital shopping experience. It uses Next.js, React, TypeScript, Tailwind CSS, and Framer Motion to build a polished, animated frontend with reusable components and responsive layouts.",
-      "The project demonstrates a different side of Hafzal's capabilities from his AI work — structuring a frontend application into reusable components, implementing responsive layouts, building interactive experiences, and using animation deliberately to improve the user experience rather than for decoration alone.",
-    ],
-    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion"],
-    featured: true,
-  },
+  // {
+  //   slug: "pd-vesture",
+  //   name: "PD_VESTURE",
+  //   category: "Web Development",
+  //   tags: ["Web", "AI"],
+  //   tagline: "A luxury fashion e-commerce experience",
+  //   description:
+  //     "A modern, visually sophisticated digital shopping experience for a luxury fashion brand — built with Next.js, React, TypeScript, Tailwind CSS, and Framer Motion.",
+  //   longDescription: [
+  //     "PD_VESTURE is a modern web-development and e-commerce-oriented project focused on creating a luxury fashion website and digital shopping experience. It uses Next.js, React, TypeScript, Tailwind CSS, and Framer Motion to build a polished, animated frontend with reusable components and responsive layouts.",
+  //     "The project demonstrates a different side of Hafzal's capabilities from his AI work — structuring a frontend application into reusable components, implementing responsive layouts, building interactive experiences, and using animation deliberately to improve the user experience rather than for decoration alone.",
+  //   ],
+  //   technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion"],
+  //   featured: true,
+  // },
   {
     slug: "case-based-system",
     name: "Case-Based System",

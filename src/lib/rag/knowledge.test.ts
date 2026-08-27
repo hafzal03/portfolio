@@ -3,6 +3,7 @@ import { buildKnowledgeChunks } from "./knowledge";
 import { projects } from "@/content/projects";
 import { courses } from "@/content/courses";
 import { degrees } from "@/content/education";
+import { profile } from "@/content/profile";
 
 describe("buildKnowledgeChunks", () => {
   const chunks = buildKnowledgeChunks();
@@ -38,11 +39,27 @@ describe("buildKnowledgeChunks", () => {
     expect(awsChunk?.text).toContain("not the official AWS certification exam credential");
   });
 
-  it("preserves each certificate's original recorded name, distinct from the site's display name", () => {
+  it("explains a certificate's recorded name only when it differs from the display name", () => {
     for (const course of courses) {
       if (!course.certificateName) continue;
       const chunk = chunks.find((c) => c.source.includes(course.name));
-      expect(chunk?.text).toContain(course.certificateName);
+      expect(chunk).toBeDefined();
+
+      if (course.certificateName === profile.name) {
+        // Otherwise the chatbot would claim a name change that never happened.
+        expect(chunk?.text).not.toContain("differs from the professional name");
+      } else {
+        expect(chunk?.text).toContain(course.certificateName);
+      }
+    }
+  });
+
+  it("never tells the visitor a name differs from itself", () => {
+    const selfContradiction = new RegExp(
+      `"${profile.name}"[^)]*differs from the professional name ${profile.name}`
+    );
+    for (const chunk of chunks) {
+      expect(chunk.text).not.toMatch(selfContradiction);
     }
   });
 

@@ -1,17 +1,18 @@
 // Single source of truth for Hafzal's identity/summary.
 // Read by both the UI (Hero/About) and the RAG knowledge base — update here only.
 //
-// Naming note: displayed as "Hafzal Ahmed" (matches hafzal.dev / github.com/hafzal03).
-// Full legal name is preserved separately since it appears differently across
-// historical certificates (see content/courses.ts) — never silently rewritten.
+// Naming note: `name` is the spelling used everywhere on the site and is the
+// authority — Hafzal set it himself. `legalName` is kept separate for the full
+// form. content/courses.ts carries a per-certificate `certificateName`, which
+// the UI and the chatbot surface only when it differs from `name`.
 
 export const profile = {
-  name: "Hafzal Ahmed",
-  legalName: "Hafizal Ahmed Hassan Mohammed",
+  name: "Hafzal Ahamed",
+  legalName: "Hafzal Ahamed Hasan Mohammed",
   role: "Software Engineer · AI Engineer",
   tagline:
     "Building intelligent software with Python, AI, LLMs, RAG, agents, and modern engineering practices.",
-  summary: `Hafzal Ahmed is a software and AI engineer whose background combines formal study in
+  summary: `Hafzal Ahamed is a software and AI engineer whose background combines formal study in
 computer applications and informatics with hands-on engineering work. His academic foundation —
 a Bachelor of Computer Applications and a Master's in Informatics — covered programming,
 databases, software engineering, networking, cloud technologies, and information security. His
