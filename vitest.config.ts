@@ -8,7 +8,9 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
-    exclude: ["node_modules", ".next", "e2e"],
+    // Globs, not bare names: the api/ Functions project has its own
+    // node_modules, whose packages ship thousands of their own tests.
+    exclude: ["**/node_modules/**", "**/.next/**", "**/out/**", "**/api/dist/**", "e2e/**"],
   },
   resolve: {
     alias: {

@@ -1,0 +1,21 @@
+{
+  "name": "hafzal-portfolio-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Functions API for Hafzal AI. The logic lives in ../src/lib/rag; this project only hosts it.",
+  "main": "dist/functions/*.js",
+  "scripts": {
+    "build": "esbuild src/functions/chat.ts --bundle --platform=node --target=node18 --format=cjs --outfile=dist/functions/chat.js --tsconfig=tsconfig.json --external:@azure/functions --external:@google/genai --external:zod",
+    "prestart": "npm run build",
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.7.0",
+    "@google/genai": "^2.19.0",
+    "esbuild": "^0.25.0",
+    "zod": "^4.4.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
