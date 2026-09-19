@@ -1,121 +1,485 @@
 @import "tailwindcss";
 
+/*
+ * Somnium — the page is one night: a chromatic dusk at the top, an aurora
+ * midnight in the middle, dawn at the contact section. The WebGL sky
+ * (components/dream/DreamSky) owns the backdrop; these tokens own everything
+ * drawn over it. Contrast notes are against --night-1, the darkest surface
+ * text normally sits on.
+ */
 :root {
-  --color-bg: #0a0908;
-  --color-bg-elevated: #151310;
-  --color-bg-elevated-2: #1d1a15;
-  --color-border: #2e2a22;
-  --color-border-strong: #443d2f;
-  --color-fg: #f5f1e8;
-  --color-fg-muted: #a3a3ab;
-  --color-fg-subtle: #8c8c94; /* ~5.9:1 contrast on --color-bg — meets WCAG AA (4.5:1) for normal text */
-  --color-accent: #d4af37; /* gold — ~9.4:1 contrast on --color-bg, well above AA */
-  --color-accent-soft: #d4af3720;
-  --color-accent-strong: #e8c96a;
-  --color-success: #34d399;
-  --color-warning: #f5a623;
+  --night-0: #05061c;
+  --night-1: #0a0c2e;
+  --night-2: #131645;
+  --night-3: #1d2060;
+
+  --ink: #f4f0ff; /* 17.0:1 */
+  --ink-muted: #c3bfe3; /* 10.8:1 */
+  --ink-subtle: #9c98c8; /* 7.0:1 — still AA for body text */
+
+  --dawn: #ffa866; /* tangerine — the sky at the horizon — 10.0:1 */
+  --dawn-strong: #ffd2a1;
+  --rose: #ff7ab8; /* magenta above the horizon — 7.9:1 */
+  --dream: #b69cff; /* ultraviolet — 8.3:1 */
+  --lucid: #5eead4; /* the aqua mirror sea — 12.9:1 */
+  --mercury: #dcd8ef;
+  --ok: #7ee2b8;
+
+  --line: rgb(196 184 255 / 0.14);
+  --line-strong: rgb(196 184 255 / 0.3);
+  --glass: rgb(10 12 46 / 0.55);
+  --glass-strong: rgb(8 9 36 / 0.86);
+
+  --ease-dream: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-drip: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @theme inline {
-  --color-bg: var(--color-bg);
-  --color-bg-elevated: var(--color-bg-elevated);
-  --color-bg-elevated-2: var(--color-bg-elevated-2);
-  --color-border: var(--color-border);
-  --color-border-strong: var(--color-border-strong);
-  --color-fg: var(--color-fg);
-  --color-fg-muted: var(--color-fg-muted);
-  --color-fg-subtle: var(--color-fg-subtle);
-  --color-accent: var(--color-accent);
-  --color-accent-soft: var(--color-accent-soft);
-  --color-accent-strong: var(--color-accent-strong);
-  --color-success: var(--color-success);
-  --color-warning: var(--color-warning);
+  --color-night-0: var(--night-0);
+  --color-night-1: var(--night-1);
+  --color-night-2: var(--night-2);
+  --color-night-3: var(--night-3);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-dawn: var(--dawn);
+  --color-dawn-strong: var(--dawn-strong);
+  --color-dream: var(--dream);
+  --color-rose: var(--rose);
+  --color-lucid: var(--lucid);
+  --color-mercury: var(--mercury);
+  --color-ok: var(--ok);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-instrument-sans);
+  --font-display: var(--font-fraunces);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --ease-dream: var(--ease-dream);
 }
 
 * {
-  border-color: var(--color-border);
+  border-color: var(--line);
 }
 
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  /* Leaves room for the fixed top bar when jumping to a chapter. */
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-fg);
+  /* The sky canvas paints over this; this is what shows before the first
+     frame, and permanently if WebGL2 is unavailable. */
+  background:
+    radial-gradient(90% 40% at 70% 60%, rgb(255 128 66 / 0.55) 0%, transparent 60%),
+    linear-gradient(180deg, #080a30 0%, #3d1285 38%, #c7297a 55%, #ff8042 60%, #042a33 60.5%, #020d18 100%);
+  background-attachment: fixed;
+  background-color: var(--night-0);
+  color: var(--ink);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+/* A soft dark halo under all page text: the sky behind it moves and has
+   bright moments (the moon window, the orb's rim, the horizon glow), and
+   this keeps text legible whatever drifts behind it. */
+main {
+  text-shadow:
+    0 0 1px rgb(5 6 28 / 0.35),
+    0 1px 16px rgb(5 6 28 / 0.6);
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-bg);
+  background: var(--dawn);
+  color: var(--night-0);
 }
 
-/* Film grain lives in SystemOverlay (components/visual) — it used to be
-   duplicated here as a second full-viewport blended layer, which meant mobile
-   GPUs compositing the same expensive effect twice every frame. */
+/* Thin, quiet scrollbar that belongs to the night. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #3b3370 transparent;
+}
 
-@keyframes gold-shimmer {
-  0% {
-    background-position: -200% center;
+/* Component classes live in the components layer so Tailwind utilities on
+   the same element (border-t-0, bg-*, etc.) can still override them. */
+@layer components {
+  /* ───────────────────────── Typography ───────────────────────── */
+
+  /* Fraunces has two expressive axes: SOFT rounds every terminal, WONK swaps
+     in the leaning, off-kilter alternates. At rest the type is crisp; the
+     .melt hover pushes both to their limits so letters appear to go soft
+     and slump, like a Dalí clock. */
+  .font-display {
+    font-variation-settings: "SOFT" 0, "WONK" 0;
   }
-  100% {
-    background-position: 200% center;
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+
+  /* Per-letter melt. Each .melt-char gets --i (its index) from MeltText. */
+  .melt-char {
+    display: inline-block;
+    transform-origin: 50% 0%;
+    transition:
+      font-variation-settings 700ms var(--ease-drip),
+      transform 900ms var(--ease-drip),
+      color 500ms ease;
+    transition-delay: calc(var(--i, 0) * 28ms);
+    will-change: transform;
+  }
+
+  .melt:hover .melt-char,
+  .melt:focus-visible .melt-char,
+  .melt-group:hover .melt-char {
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+    transform: translateY(0.06em) scaleY(1.14) skewX(calc((var(--i, 0) - 4) * -0.6deg));
+  }
+
+  /* Letters that hover independently, as if weightless. */
+  @keyframes levitate {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    50% {
+      transform: translate3d(0, -0.07em, 0) rotate(calc((var(--i, 0) - 3) * 0.35deg));
+    }
+  }
+
+  .levitate-char {
+    display: inline-block;
+    animation: levitate 6.5s var(--ease-drip) infinite;
+    animation-delay: calc(var(--i, 0) * -0.61s);
+  }
+
+  /* The mirrored copy of a headline, as if reflected in still water. */
+  @keyframes ripple-skew {
+    0%,
+    100% {
+      transform: scaleY(-1) skewX(0deg) translateX(0);
+    }
+    33% {
+      transform: scaleY(-1) skewX(-3deg) translateX(0.4%);
+    }
+    66% {
+      transform: scaleY(-1) skewX(2deg) translateX(-0.3%);
+    }
+  }
+
+  /* Flipped about its own centre: the baseline (near the element's bottom)
+     ends up near its top, so a reflection placed directly under a headline
+     hangs from the same waterline the headline stands on. */
+  .reflection {
+    transform: scaleY(-1);
+    transform-origin: 50% 50%;
+    opacity: 0.2;
+    filter: blur(1.5px);
+    -webkit-mask-image: linear-gradient(to top, rgb(0 0 0 / 0.9), transparent 70%);
+    mask-image: linear-gradient(to top, rgb(0 0 0 / 0.9), transparent 70%);
+    animation: ripple-skew 9s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Hero entrance: each letter rises out of the sea at the horizon. The line
+     is clipped at the waterline only while that happens, then released so
+     the melt and levitate effects can overflow freely. */
+  @keyframes rise-from-sea {
+    from {
+      transform: translate3d(0, 115%, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes release-clip {
+    to {
+      clip-path: inset(-60% -30% -80% -30%);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 1rem, 0);
+    }
+  }
+
+  /* The part of the hero above the waterline. Its height is set from the same
+     constant the WebGL horizon uses (HERO_HORIZON), so the name stands exactly
+     on the sea. lvh matches the sky canvas, which is sized to 100lvh. */
+  .hero-sky {
+    height: calc(var(--sky, 60) * 1vh);
+    height: calc(var(--sky, 60) * 1lvh);
+    min-height: 21rem;
+  }
+
+  .sea-line {
+    clip-path: inset(-60% -30% 0 -30%);
+    animation: release-clip 1ms linear 2.2s forwards;
+  }
+
+  .rise-char {
+    display: inline-block;
+    animation: rise-from-sea 1.5s var(--ease-dream) both;
+    animation-delay: calc(150ms + var(--i, 0) * 55ms);
+  }
+
+  .intro-fade {
+    animation: fade-up 1.2s var(--ease-dream) both;
+    animation-delay: var(--intro-delay, 0ms);
+  }
+
+  .reflection-intro {
+    animation: fade-in 2.4s ease-out 900ms both;
+  }
+
+  /* Scroll cue — a thread being drawn down into the water. */
+  @keyframes thread {
+    0% {
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+    45% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+    55% {
+      transform: scaleY(1);
+      transform-origin: bottom;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+    }
+  }
+
+  .scroll-thread {
+    animation: thread 2.6s var(--ease-drip) infinite;
+  }
+
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+  }
+
+  .twinkle {
+    animation: twinkle 3.2s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -0.47s);
+  }
+
+  @keyframes orbit {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  .orbit-spin {
+    animation: orbit var(--orbit-duration, 90s) linear infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  .pulse-ring {
+    animation: pulse-ring 2.8s var(--ease-dream) infinite;
+  }
+
+  /* ───────────────────────── Surfaces ───────────────────────── */
+
+  .glass {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid var(--line);
+  }
+
+  /* Phones pay for backdrop blur on every scroll frame — give them a solid,
+     slightly more opaque surface instead. */
+  @media (max-width: 767px) {
+    .glass {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: rgb(12 10 36 / 0.86);
+    }
   }
 }
 
-.gold-shimmer-text {
-  background: linear-gradient(
-    100deg,
-    var(--color-fg) 30%,
-    var(--color-accent-strong) 45%,
-    var(--color-accent) 50%,
-    var(--color-accent-strong) 55%,
-    var(--color-fg) 70%
-  );
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: gold-shimmer 6s ease-in-out infinite;
+/* ───────────────────────── Opening the eyes ───────────────────────── */
+
+/* First visit of a session: two lids part — a flicker, a blink, then open
+   wide — onto the sky. Never blocks input (pointer-events: none), skipped
+   entirely with reduced motion, and not replayed on reloads within the same
+   session (layout.tsx adds .eyes-open to <html> before first paint). */
+.eyelids {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  pointer-events: none;
+  overflow: hidden;
+  animation: eyelids-done 1ms linear 2.2s forwards;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .gold-shimmer-text {
-    animation: none;
-    color: var(--color-fg);
-    background: none;
+html.eyes-open .eyelids {
+  display: none;
+}
+
+.lid {
+  position: absolute;
+  left: -20vw;
+  width: 140vw;
+  height: 58vh;
+  background: #02030d;
+  box-shadow: 0 0 80px 24px rgb(255 128 90 / 0.28);
+}
+
+.lid-top {
+  top: 0;
+  border-radius: 0 0 50% 50% / 0 0 42% 42%;
+  animation: lid-top 1.9s var(--ease-drip) 0.15s both;
+}
+
+.lid-bottom {
+  bottom: 0;
+  border-radius: 50% 50% 0 0 / 42% 42% 0 0;
+  animation: lid-bottom 1.9s var(--ease-drip) 0.15s both;
+}
+
+@keyframes lid-top {
+  0% { transform: translate3d(0, 0, 0); }
+  22% { transform: translate3d(0, -22%, 0); }
+  36% { transform: translate3d(0, -4%, 0); }
+  100% { transform: translate3d(0, -112%, 0); }
+}
+
+@keyframes lid-bottom {
+  0% { transform: translate3d(0, 0, 0); }
+  22% { transform: translate3d(0, 22%, 0); }
+  36% { transform: translate3d(0, 4%, 0); }
+  100% { transform: translate3d(0, 112%, 0); }
+}
+
+@keyframes eyelids-done {
+  to { visibility: hidden; }
+}
+
+/* ───────────────────────── Reveal ───────────────────────── */
+
+/* Content is visible by default (no JS, crawlers, reduced motion). Only once
+   lib/reveal has registered its scroll watcher does it add .reveal-on to
+   <html>, and only then do not-yet-seen elements start hidden. */
+[data-reveal] {
+  transition:
+    opacity 1s var(--ease-dream),
+    transform 1.2s var(--ease-dream),
+    filter 1s var(--ease-dream);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+html.reveal-on [data-reveal]:not([data-revealed]) {
+  opacity: 0;
+  transform: translate3d(0, 2rem, 0);
+  filter: blur(8px);
+}
+
+@media (max-width: 767px) {
+  html.reveal-on [data-reveal]:not([data-revealed]) {
+    filter: none;
   }
 }
+
+/* ───────────────────────── Focus ───────────────────────── */
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--dawn);
+  outline-offset: 3px;
+}
+
+/* ───────────────────────── Motion preferences ───────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+
+  .levitate-char,
+  .reflection,
+  .rise-char,
+  .lid,
+  .eyelids,
+  .intro-fade,
+  .reflection-intro,
+  .scroll-thread,
+  .twinkle,
+  .orbit-spin,
+  .pulse-ring {
+    animation: none !important;
+  }
+
+  .sea-line {
+    clip-path: none;
+    animation: none !important;
+  }
+
+  .eyelids {
+    display: none;
+  }
+
+  .reflection {
+    transform: scaleY(-1);
+  }
+
+  html.reveal-on [data-reveal]:not([data-revealed]) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-.focus-ring {
-  outline: none;
-}
-.focus-ring:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-  border-radius: 4px;
 }

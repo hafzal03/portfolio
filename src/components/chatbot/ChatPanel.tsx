@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Send, Sparkles, X } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowUp, X } from "lucide-react";
+import { useDialog } from "@/lib/useDialog";
+import { DreamOrb } from "./DreamOrb";
+
+// ── Conversation logic ──────────────────────────────────────────────────────
+// Unchanged from the previous design on purpose: same endpoint, same request
+// body ({ message, history: last 12 }), same { reply } / { error } handling,
+// same fallback copy and input limit. Only the presentation below is new.
 
 interface Message {
   role: "user" | "assistant";
@@ -27,10 +34,11 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+  // Non-modal: the page stays scrollable and usable behind the panel.
+  useDialog(true, onClose, panelRef, { trapFocus: false, lockScroll: false, initialFocus: inputRef });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -70,50 +78,72 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
     }
   }
 
+  // ── Presentation ──────────────────────────────────────────────────────────
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 16, scale: 0.98 }}
-      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as const }}
+      ref={panelRef}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.94, filter: "blur(8px)" }}
+      animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+      exit={reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.96, filter: "blur(6px)" }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] as const }}
+      style={{ transformOrigin: "bottom right" }}
       role="dialog"
-      aria-modal="true"
       aria-labelledby="chat-panel-title"
-      className="fixed inset-x-4 bottom-24 top-20 z-[70] flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-elevated shadow-2xl sm:inset-auto sm:bottom-24 sm:right-6 sm:top-auto sm:h-[560px] sm:w-[380px]"
+      className="fixed inset-x-3 top-20 bottom-24 z-[70] flex flex-col overflow-hidden rounded-[1.75rem] border border-line-strong bg-glass-strong shadow-[0_40px_100px_-20px_rgba(0,0,0,0.85)] backdrop-blur-xl sm:inset-auto sm:right-6 sm:bottom-24 sm:h-[600px] sm:max-h-[calc(100svh-8rem)] sm:w-[400px]"
     >
-      <header className="flex items-center justify-between border-b border-border px-5 py-4">
-        <div className="flex items-center gap-2">
-          <Sparkles size={16} className="text-accent" />
-          <h2 id="chat-panel-title" className="font-display text-sm font-semibold text-fg">
-            Hafzal AI
-          </h2>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(80%_100%_at_50%_0%,rgba(182,156,255,0.22),transparent_70%)]"
+      />
+
+      <header className="relative flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+        <div className="flex items-center gap-3">
+          <DreamOrb size={36} thinking={loading} />
+          <div>
+            <h2 id="chat-panel-title" className="font-display text-lg leading-tight text-ink">
+              Hafzal AI
+            </h2>
+            <p className="text-xs text-ink-subtle">Answers grounded in this portfolio</p>
+          </div>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close chat"
-          className="focus-ring flex h-8 w-8 items-center justify-center rounded-full text-fg-muted hover:text-fg"
+          className="focus-ring flex h-10 w-10 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-night-2 hover:text-ink"
         >
-          <X size={16} />
+          <X size={18} aria-hidden />
         </button>
       </header>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4">
+      <div
+        ref={scrollRef}
+        role="log"
+        aria-live="polite"
+        aria-busy={loading}
+        className="relative flex-1 overflow-y-auto overscroll-contain px-5 py-5"
+      >
         {messages.length === 0 ? (
           <div>
-            <p className="text-sm text-fg-muted">
+            <p className="text-sm leading-relaxed text-ink-muted">
               Curious about Hafzal&rsquo;s work? Ask me about his projects, skills, AI experience,
               or Khwarizmi Studio.
             </p>
-            <div className="mt-4 flex flex-col gap-2">
+            <div className="mt-5 flex flex-col gap-2">
               {SUGGESTED_QUESTIONS.map((q) => (
                 <button
                   key={q}
                   type="button"
                   onClick={() => sendMessage(q)}
-                  className="focus-ring rounded-xl border border-border bg-bg-elevated-2 px-3.5 py-2.5 text-left text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+                  className="focus-ring group flex items-center justify-between gap-3 rounded-2xl border border-line bg-night-2/50 px-4 py-3 text-left text-sm text-ink-muted transition-all duration-300 hover:border-dream/40 hover:bg-night-2 hover:text-ink"
                 >
                   {q}
+                  <ArrowUp
+                    size={14}
+                    aria-hidden
+                    className="shrink-0 rotate-45 text-ink-subtle transition-transform duration-300 group-hover:rotate-90 group-hover:text-dawn"
+                  />
                 </button>
               ))}
             </div>
@@ -123,25 +153,20 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                className={
                   m.role === "user"
-                    ? "ml-auto bg-accent text-bg"
-                    : "bg-bg-elevated-2 text-fg-muted"
-                }`}
+                    ? "ml-auto max-w-[85%] rounded-[1.25rem] rounded-br-md bg-gradient-to-br from-dawn to-dawn-strong px-4 py-2.5 text-sm leading-relaxed text-night-0"
+                    : "max-w-[90%] rounded-[1.25rem] rounded-bl-md border border-line bg-night-2/70 px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap text-ink-muted"
+                }
               >
+                <span className="sr-only">{m.role === "user" ? "You: " : "Hafzal AI: "}</span>
                 {m.content}
               </div>
             ))}
             {loading && (
-              <div className="flex w-fit items-center gap-1.5 rounded-2xl bg-bg-elevated-2 px-4 py-3">
-                {[0, 1, 2].map((i) => (
-                  <motion.span
-                    key={i}
-                    className="h-1.5 w-1.5 rounded-full bg-fg-subtle"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }}
-                  />
-                ))}
+              <div className="flex w-fit items-center gap-3 rounded-[1.25rem] rounded-bl-md border border-line bg-night-2/70 px-4 py-3 text-sm text-ink-subtle">
+                <DreamOrb size={18} thinking />
+                <span>Thinking…</span>
               </div>
             )}
           </div>
@@ -153,25 +178,32 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
           e.preventDefault();
           sendMessage(input);
         }}
-        className="flex items-center gap-2 border-t border-border p-3"
+        className="relative border-t border-line p-3"
       >
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about Hafzal..."
-          maxLength={2000}
-          className="focus-ring flex-1 rounded-full border border-border bg-bg px-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle"
-        />
-        <button
-          type="submit"
-          disabled={loading || !input.trim()}
-          aria-label="Send message"
-          className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-bg transition-opacity disabled:opacity-40"
-        >
-          <Send size={16} />
-        </button>
+        <label htmlFor="chat-input" className="sr-only">
+          Your question for Hafzal AI
+        </label>
+        <div className="flex items-center gap-2 rounded-full border border-line-strong bg-night-0/70 p-1.5 pl-4 transition-colors focus-within:border-dawn/60">
+          <input
+            ref={inputRef}
+            id="chat-input"
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask about Hafzal..."
+            maxLength={2000}
+            autoComplete="off"
+            className="min-w-0 flex-1 bg-transparent py-2 text-sm text-ink outline-none placeholder:text-ink-subtle"
+          />
+          <button
+            type="submit"
+            disabled={loading || !input.trim()}
+            aria-label="Send message"
+            className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dawn text-night-0 transition-[opacity,transform] duration-300 hover:scale-105 disabled:scale-100 disabled:opacity-35"
+          >
+            <ArrowUp size={17} aria-hidden />
+          </button>
+        </div>
       </form>
     </motion.div>
   );

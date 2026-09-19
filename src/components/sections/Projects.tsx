@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowUpRight, ChevronDown, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import {
   projects,
   featuredProjects,
@@ -10,107 +9,13 @@ import {
   allTags,
   type Project,
 } from "@/content/projects";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ChapterHeading } from "@/components/ui/ChapterHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProjectDetail } from "./ProjectDetail";
+import { ProjectPortal, ProjectRow } from "./projects/ProjectPortal";
+import { ProjectDetail } from "./projects/ProjectDetail";
 import { cn } from "@/lib/utils";
 
-const GRID_SPAN: Record<string, string> = {
-  "khwarizmi-studio": "col-span-2 row-span-2",
-  "masters-thesis-case": "col-span-2 row-span-1",
-  "hafzal-portfolio": "col-span-2 row-span-1",
-  "pd-vesture": "col-span-1 row-span-1",
-  "docker-kubernetes-deployment": "col-span-1 row-span-1",
-  "face-recognition-attendance": "col-span-2 row-span-1",
-};
-
-function ProjectCard({ project, onOpen }: { project: Project; onOpen: (p: Project) => void }) {
-  const isLarge = project.slug === "khwarizmi-studio";
-
-  return (
-    <motion.button
-      type="button"
-      layoutId={`project-card-${project.slug}`}
-      onClick={() => onOpen(project)}
-      className={cn(
-        "focus-ring group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-bg-elevated/50 p-6 text-left shadow-[0_0_0_0_var(--color-accent)] transition-all duration-300 hover:border-accent/40 hover:bg-bg-elevated hover:shadow-[0_20px_60px_-25px_var(--color-accent)]",
-        GRID_SPAN[project.slug] ?? "col-span-1 row-span-1"
-      )}
-    >
-      {isLarge && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-accent/15 blur-3xl transition-opacity duration-300 group-hover:opacity-150"
-        />
-      )}
-
-      <div className="relative">
-        <p className="font-mono text-[11px] tracking-[0.15em] text-accent uppercase">
-          {project.category}
-        </p>
-        <h3
-          className={cn(
-            "mt-2 text-balance font-display font-semibold tracking-tight text-fg",
-            isLarge ? "text-2xl sm:text-3xl" : "text-lg"
-          )}
-        >
-          {project.name}
-        </h3>
-        <p
-          className={cn(
-            "mt-2 text-balance text-fg-muted",
-            isLarge ? "max-w-md text-base" : "text-sm"
-          )}
-        >
-          {project.tagline}
-        </p>
-      </div>
-
-      <div className="relative mt-6 flex items-center justify-between">
-        <div className="flex flex-wrap gap-1.5">
-          {project.technologies.slice(0, isLarge ? 4 : 2).map((t) => (
-            <span
-              key={t}
-              className="rounded-full border border-border bg-bg-elevated-2 px-2.5 py-1 font-mono text-[10px] text-fg-subtle"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-        <ArrowUpRight
-          size={18}
-          className="shrink-0 text-fg-subtle transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
-        />
-      </div>
-    </motion.button>
-  );
-}
-
-function ProjectListRow({ project, onOpen }: { project: Project; onOpen: (p: Project) => void }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(project)}
-      className="focus-ring flex w-full flex-col gap-1 rounded-xl border border-border bg-bg-elevated/30 p-4 text-left transition-colors hover:border-border-strong hover:bg-bg-elevated"
-    >
-      <p className="font-mono text-[10px] tracking-[0.15em] text-fg-subtle uppercase">
-        {project.category}
-      </p>
-      <p className="font-display text-sm font-semibold text-fg">{project.name}</p>
-      <p className="text-xs text-fg-subtle">{project.tagline}</p>
-      <div className="mt-1 flex flex-wrap gap-1">
-        {project.tags.map((t) => (
-          <span
-            key={t}
-            className="rounded-full border border-border bg-bg-elevated-2 px-2 py-0.5 font-mono text-[9px] text-fg-subtle"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-    </button>
-  );
-}
+const FLAGSHIP = "khwarizmi-studio";
 
 export function Projects() {
   const [selected, setSelected] = useState<Project | null>(null);
@@ -118,97 +23,124 @@ export function Projects() {
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
   const toggleTag = (tag: string) => {
-    setActiveTags((tags) =>
-      tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag]
-    );
+    setActiveTags((tags) => (tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag]));
   };
 
-  const filteredProjects = useMemo(() => {
+  const filtered = useMemo(() => {
     if (activeTags.length === 0) return null;
     return projects.filter((p) => p.tags.some((t) => activeTags.includes(t)));
   }, [activeTags]);
 
+  const flagship = featuredProjects.find((p) => p.slug === FLAGSHIP);
+  const others = featuredProjects.filter((p) => p.slug !== FLAGSHIP);
+
   return (
-    <section id="projects" className="mx-auto max-w-6xl px-6 py-24 md:py-32">
-      <SectionHeading
-        eyebrow="Projects"
-        title="Selected work"
-        description="Khwarizmi Studio is the flagship — everything else traces the path that led there. Filter by technology to search the complete archive."
+    <section
+      id="projects"
+      aria-labelledby="projects-title"
+      tabIndex={-1}
+      className="relative mx-auto max-w-6xl px-6 py-28 outline-none md:py-40"
+    >
+      <ChapterHeading
+        id="projects"
+        description="Khwarizmi Studio is the flagship — everything else traces the path that led there. Open any project for the full case study, or filter by topic to search the complete archive."
       />
 
-      <Reveal className="mb-8 flex flex-wrap gap-2">
-        {allTags.map((tag) => (
-          <button
-            key={tag}
-            type="button"
-            onClick={() => toggleTag(tag)}
-            aria-pressed={activeTags.includes(tag)}
-            className={cn(
-              "focus-ring rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors",
-              activeTags.includes(tag)
-                ? "border-accent/60 bg-accent-soft text-accent"
-                : "border-border bg-bg-elevated/40 text-fg-subtle hover:border-border-strong hover:text-fg"
-            )}
-          >
-            {tag}
-          </button>
-        ))}
-        {activeTags.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setActiveTags([])}
-            className="focus-ring inline-flex items-center gap-1 rounded-full border border-border px-3.5 py-1.5 font-mono text-xs text-fg-subtle transition-colors hover:text-fg"
-          >
-            <X size={12} />
-            Clear
-          </button>
-        )}
+      <Reveal>
+        <div role="group" aria-label="Filter projects by topic" className="mb-12 flex flex-wrap items-center gap-2">
+          <span className="eyebrow mr-2">Filter by topic</span>
+          {allTags.map((tag) => {
+            const on = activeTags.includes(tag);
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                aria-pressed={on}
+                className={cn(
+                  "focus-ring h-11 rounded-full border px-4 font-mono text-xs transition-all duration-300 sm:h-9",
+                  on
+                    ? "border-dawn/70 bg-dawn/15 text-dawn-strong shadow-[0_0_20px_-4px_rgba(255,184,112,0.6)]"
+                    : "border-line bg-night-1/50 text-ink-muted hover:border-line-strong hover:text-ink"
+                )}
+              >
+                {tag}
+              </button>
+            );
+          })}
+          {activeTags.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveTags([])}
+              className="focus-ring inline-flex h-11 items-center gap-1.5 rounded-full px-3 font-mono text-xs text-ink-subtle transition-colors hover:text-ink sm:h-9"
+            >
+              <X size={13} aria-hidden />
+              Clear
+            </button>
+          )}
+        </div>
       </Reveal>
 
-      {filteredProjects ? (
+      <p aria-live="polite" className="sr-only">
+        {filtered
+          ? `${filtered.length} project${filtered.length === 1 ? "" : "s"} match ${activeTags.join(", ")}`
+          : ""}
+      </p>
+
+      {filtered ? (
         <div>
-          <p className="mb-4 text-sm text-fg-subtle">
-            {filteredProjects.length} project{filteredProjects.length === 1 ? "" : "s"} match
-            {filteredProjects.length === 1 ? "es" : ""} {activeTags.join(", ")}
+          <p className="mb-5 text-sm text-ink-subtle">
+            {filtered.length} project{filtered.length === 1 ? "" : "s"} tagged{" "}
+            <span className="text-ink-muted">{activeTags.join(" · ")}</span>
           </p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredProjects.map((project) => (
-              <Reveal key={project.slug}>
-                <ProjectListRow project={project} onOpen={setSelected} />
-              </Reveal>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((project) => (
+              <li key={project.slug}>
+                <ProjectRow project={project} onOpen={setSelected} />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 auto-rows-[200px] grid-flow-dense gap-5 md:grid-cols-4 md:auto-rows-[210px]">
-            {featuredProjects.map((project) => (
-              <ProjectCard key={project.slug} project={project} onOpen={setSelected} />
+          <ul className="grid gap-8 md:grid-cols-2 md:gap-10">
+            {flagship && (
+              <Reveal as="li" className="md:col-span-2">
+                <ProjectPortal project={flagship} onOpen={setSelected} flagship />
+              </Reveal>
+            )}
+            {others.map((project, i) => (
+              <Reveal as="li" key={project.slug} delay={(i % 2) * 140}>
+                <ProjectPortal project={project} onOpen={setSelected} />
+              </Reveal>
             ))}
-          </div>
+          </ul>
 
-          <div className="mt-10">
+          <div className="mt-16">
             <button
               type="button"
               onClick={() => setArchiveOpen((o) => !o)}
-              className="focus-ring inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
               aria-expanded={archiveOpen}
+              aria-controls="project-archive"
+              className="focus-ring group inline-flex h-12 items-center gap-3 rounded-full border border-line-strong bg-night-1/40 px-6 text-sm text-ink transition-colors hover:border-dawn/60"
             >
-              {archiveOpen ? "Hide" : "View"} complete project archive ({archivedProjects.length})
+              {archiveOpen ? "Close" : "Open"} the complete archive
+              <span className="font-mono text-xs text-ink-subtle">{archivedProjects.length}</span>
               <ChevronDown
                 size={16}
-                className={cn("transition-transform", archiveOpen && "rotate-180")}
+                aria-hidden
+                className={cn("transition-transform duration-500", archiveOpen && "rotate-180")}
               />
             </button>
 
             {archiveOpen && (
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {archivedProjects.map((project) => (
-                  <Reveal key={project.slug}>
-                    <ProjectListRow project={project} onOpen={setSelected} />
+              <ul id="project-archive" className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {archivedProjects.map((project, i) => (
+                  <Reveal as="li" key={project.slug} delay={(i % 3) * 80}>
+                    <ProjectRow project={project} onOpen={setSelected} />
                   </Reveal>
                 ))}
-              </div>
+              </ul>
             )}
           </div>
         </>

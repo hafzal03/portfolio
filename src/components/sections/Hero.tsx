@@ -1,92 +1,122 @@
-"use client";
-
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import type { CSSProperties } from "react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import { profile } from "@/content/profile";
-import { Hero3DPanel } from "./Hero3DPanel";
+import { HERO_HORIZON } from "@/components/dream/choreography";
+import { MeltText } from "@/components/ui/MeltText";
+import { AskAIButton } from "@/components/chatbot/AskAIButton";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+const delay = (ms: number) => ({ "--intro-delay": `${ms}ms` }) as CSSProperties;
 
+/**
+ * Prologue. The name stands on the horizon of the WebGL sea — each letter
+ * rises out of the water on load, then floats — and its reflection ripples
+ * in the mirror beneath. Everything else surfaces around it.
+ */
 export function Hero() {
-  const shouldReduceMotion = useReducedMotion();
-
-  const container: Variants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: shouldReduceMotion ? 0 : 0.09 } },
-  };
-
-  const item: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
-  };
+  const [first, ...rest] = profile.name.split(" ");
+  const last = rest.join(" ");
 
   return (
-    <section
-      id="home"
-      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-6 pt-28 pb-16"
-    >
+    <section id="home" aria-labelledby="home-title" tabIndex={-1} className="relative outline-none">
+      {/* Above the waterline */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-accent/15 blur-[130px]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-0 right-0 h-[360px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-accent/10 blur-[110px]"
-      />
-
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-16 lg:grid-cols-[1.1fr_1fr]">
-        <motion.div initial="hidden" animate="visible" variants={container}>
-          <motion.p
-            variants={item}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-bg-elevated px-3 py-1.5 font-mono text-xs tracking-wide text-fg-muted"
+        className="hero-sky flex flex-col justify-end px-6"
+        style={{ "--sky": (1 - HERO_HORIZON) * 100 } as CSSProperties}
+      >
+        <div className="mx-auto w-full max-w-6xl">
+          <p
+            className="intro-fade mb-5 inline-flex items-center gap-2.5 rounded-full border border-line bg-night-1/50 py-1.5 pr-4 pl-3 text-xs text-ink-muted backdrop-blur-sm"
+            style={delay(500)}
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-success" />
+            <span className="relative flex h-2 w-2">
+              <span aria-hidden className="pulse-ring absolute inset-0 rounded-full bg-lucid" />
+              <span className="relative h-2 w-2 rounded-full bg-lucid" />
+            </span>
             Building Khwarizmi Studio — an AI Engineer agent
-          </motion.p>
+          </p>
 
-          <motion.h1
-            variants={item}
-            className="gold-shimmer-text text-balance font-display text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
-          >
-            {profile.name}
-          </motion.h1>
-
-          <motion.p
-            variants={item}
-            className="mt-5 text-balance font-display text-xl text-fg-muted sm:text-2xl"
-          >
+          <p className="intro-fade eyebrow mb-4 md:mb-2" style={delay(600)}>
             {profile.role}
-          </motion.p>
+          </p>
 
-          <motion.p
-            variants={item}
-            className="mt-6 max-w-xl text-balance text-base leading-relaxed text-fg-muted sm:text-lg"
+          <h1
+            id="home-title"
+            aria-label={profile.name}
+            className="melt-group sea-line font-display text-[clamp(3.6rem,19vw,7.5rem)] leading-[0.84] font-light tracking-[-0.035em] text-ink md:text-[clamp(5rem,10vw,10rem)]"
           >
-            {profile.tagline}
-          </motion.p>
+            <MeltText text={first} rise levitate className="block md:inline" />
+            <span className="hidden md:inline"> </span>
+            <MeltText
+              text={last}
+              rise
+              levitate
+              startIndex={first.length}
+              palette={["#fff1e4", "#ffc9e6", "#d6caff"]}
+              className="block font-normal italic md:inline"
+            />
+          </h1>
+        </div>
+      </div>
 
-          <motion.div variants={item} className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href="#projects"
-              className="focus-ring rounded-full bg-accent px-6 py-3 text-sm font-medium text-bg transition-colors hover:bg-accent-strong"
-            >
-              View Projects
-            </a>
-            <a
-              href="#contact"
-              className="focus-ring rounded-full border border-border px-6 py-3 text-sm font-medium text-fg transition-colors hover:border-border-strong hover:bg-bg-elevated"
-            >
-              Let&rsquo;s Talk
-            </a>
-          </motion.div>
-        </motion.div>
+      {/* Below the waterline */}
+      <div className="px-6 pb-20 md:pb-28">
+        <div className="mx-auto w-full max-w-6xl">
+          <div aria-hidden className="reflection-intro select-none">
+            <p className="reflection font-display text-[clamp(3.6rem,19vw,7.5rem)] leading-[0.84] font-light tracking-[-0.035em] text-ink md:text-[clamp(5rem,10vw,10rem)]">
+              <span className="block md:inline">{first}</span>
+              <span className="hidden md:inline"> </span>
+              <span className="block font-normal italic md:inline">{last}</span>
+            </p>
+          </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.9, ease: EASE, delay: 0.2 }}
-        >
-          <Hero3DPanel />
-        </motion.div>
+          <div className="-mt-6 grid gap-10 md:-mt-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+            <div>
+              <p
+                className="intro-fade max-w-xl text-lg leading-relaxed text-pretty text-ink-muted sm:text-xl"
+                style={delay(850)}
+              >
+                {profile.tagline}
+              </p>
+
+              <div className="intro-fade mt-9 flex flex-wrap items-center gap-3" style={delay(1000)}>
+                <a
+                  href="#projects"
+                  className="focus-ring group inline-flex h-12 items-center gap-2 rounded-full bg-gradient-to-r from-dawn to-rose px-6 text-sm font-medium text-night-0 shadow-[0_10px_40px_-10px_rgba(255,122,184,0.8)] transition-[filter,transform] duration-300 hover:-translate-y-0.5 hover:brightness-110"
+                >
+                  Explore projects
+                  <ArrowUpRight
+                    size={16}
+                    aria-hidden
+                    className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                </a>
+                <a
+                  href="#contact"
+                  className="focus-ring inline-flex h-12 items-center rounded-full border border-line-strong bg-night-1/40 px-6 text-sm font-medium text-ink backdrop-blur-sm transition-colors duration-300 hover:border-dawn/60 hover:text-dawn-strong"
+                >
+                  Get in touch
+                </a>
+                <AskAIButton className="focus-ring group inline-flex h-12 items-center gap-2 rounded-full px-4 text-sm text-ink-muted transition-colors hover:text-ink">
+                  <Sparkles size={15} aria-hidden className="text-lucid transition-transform duration-500 group-hover:rotate-45" />
+                  Ask Hafzal AI
+                </AskAIButton>
+              </div>
+            </div>
+
+            <a
+              href="#about"
+              className="intro-fade focus-ring group hidden items-center gap-4 self-end rounded-full py-2 text-ink-subtle md:flex xl:mr-16"
+              style={delay(1400)}
+            >
+              <span className="font-mono text-[11px] tracking-[0.25em] uppercase transition-colors group-hover:text-ink">
+                Scroll to explore
+              </span>
+              <span aria-hidden className="relative block h-14 w-px overflow-hidden bg-line">
+                <span className="scroll-thread absolute inset-0 bg-gradient-to-b from-rose to-lucid" />
+              </span>
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   );

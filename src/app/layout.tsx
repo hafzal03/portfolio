@@ -1,26 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
+import { DreamSky } from "@/components/dream/DreamSky";
+import { CursorWisp } from "@/components/dream/CursorWisp";
+import { Eyelids, EYELIDS_SCRIPT } from "@/components/dream/Eyelids";
+import { DreamChrome } from "@/components/layout/DreamChrome";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
-import { ScrollBackdrop } from "@/components/visual/ScrollBackdrop";
-import { SystemOverlay } from "@/components/visual/SystemOverlay";
 import { profile } from "@/content/profile";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Display: Fraunces, loaded with its SOFT and WONK axes — the melting-letter
+// effects animate those two axes (see .melt-char in globals.css).
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["SOFT", "WONK", "opsz"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  display: "swap",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hafzal.dev";
@@ -54,8 +61,8 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: profile.name }],
   creator: profile.name,
-  // No explicit `icons` override here — app/icon.svg (the gold "H" monogram)
-  // is picked up automatically via Next.js's file-convention favicon, and an
+  // No explicit `icons` override here — app/icon.svg (the Somnium mark: an
+  // orb over a mirror horizon) is picked up automatically via Next.js's file-convention favicon, and an
   // explicit override here would take precedence over it and hide it.
   openGraph: {
     type: "website",
@@ -72,7 +79,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0908", // matches --color-bg (warm black), not the old cool-grey value
+  themeColor: "#07061a", // matches --night-0, the deepest colour of the dream sky
   colorScheme: "dark",
 };
 
@@ -82,15 +89,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased`}
-      >
-        <ScrollBackdrop />
-        <SystemOverlay />
-        <Navbar />
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${instrumentSans.variable} ${jetbrainsMono.variable}`}
+      // EYELIDS_SCRIPT may add .eyes-open before React hydrates.
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: EYELIDS_SCRIPT }} />
+      </head>
+      <body>
+        <Eyelids />
+        <DreamSky />
+        <DreamChrome />
         <div className="relative z-10">{children}</div>
         <ChatWidget />
+        <CursorWisp />
       </body>
     </html>
   );

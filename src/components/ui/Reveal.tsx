@@ -1,44 +1,41 @@
 "use client";
 
-import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { observeReveal } from "@/lib/reveal";
+
+type RevealTag = "div" | "li" | "p" | "article" | "header" | "figure";
 
 interface RevealProps {
   children: ReactNode;
   className?: string;
+  /** Stagger in milliseconds. */
   delay?: number;
-  y?: number;
-  as?: "div" | "section" | "li";
+  as?: RevealTag;
+  style?: CSSProperties;
 }
 
 /**
- * Scroll-triggered fade/rise reveal. Every animated section in this site
- * routes through this component so prefers-reduced-motion is handled once,
- * centrally, instead of re-checked in every section.
+ * Surfaces its children as they drift into view — rising, un-blurring,
+ * condensing out of the dream. All timing lives in CSS ([data-reveal] in
+ * globals.css), so reduced-motion and no-JS both get plain, visible content.
  */
-export function Reveal({ children, className, delay = 0, y = 24, as = "div" }: RevealProps) {
-  const shouldReduceMotion = useReducedMotion();
+export function Reveal({ children, className, delay = 0, as = "div", style }: RevealProps) {
+  const ref = useRef<HTMLElement | null>(null);
 
-  const variants: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : y },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: shouldReduceMotion ? 0.01 : 0.6, delay, ease: [0.16, 1, 0.3, 1] as const },
-    },
-  };
+  useEffect(() => {
+    if (!ref.current) return;
+    return observeReveal(ref.current);
+  }, []);
 
-  const MotionTag = motion[as];
-
+  const Tag = as;
   return (
-    <MotionTag
+    <Tag
+      ref={ref as React.Ref<never>}
+      data-reveal=""
       className={className}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      variants={variants}
+      style={{ ...style, ["--reveal-delay" as string]: `${delay}ms` }}
     >
       {children}
-    </MotionTag>
+    </Tag>
   );
 }

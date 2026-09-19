@@ -1,74 +1,117 @@
+import { Info } from "lucide-react";
 import { courses, coursesPlaceholder } from "@/content/courses";
 import { profile } from "@/content/profile";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ChapterHeading } from "@/components/ui/ChapterHeading";
 import { Reveal } from "@/components/ui/Reveal";
+
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+
+/** A wax-seal-like emblem with text running round its rim. */
+function Seal({ index }: { index: number }) {
+  const id = `seal-path-${index}`;
+  return (
+    <svg viewBox="0 0 120 120" aria-hidden className="h-24 w-24 shrink-0">
+      <defs>
+        <path id={id} d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" />
+        <radialGradient id={`${id}-fill`} cx="0.35" cy="0.3">
+          <stop offset="0" stopColor="#ffd6a3" />
+          <stop offset="0.6" stopColor="#c46a52" />
+          <stop offset="1" stopColor="#6b2f45" />
+        </radialGradient>
+      </defs>
+      <g className="orbit-spin" style={{ transformOrigin: "60px 60px", ["--orbit-duration" as string]: "40s" }}>
+        <text className="fill-ink-subtle font-mono text-[9.5px] tracking-[0.32em] uppercase">
+          <textPath href={`#${id}`}>Record of completion · Record of completion ·</textPath>
+        </text>
+      </g>
+      <circle cx="60" cy="60" r="30" fill={`url(#${id}-fill)`} />
+      <circle cx="60" cy="60" r="25" fill="none" stroke="#ffe3bf" strokeOpacity="0.4" strokeDasharray="1.5 3" />
+      <text
+        x="60"
+        y="67"
+        textAnchor="middle"
+        className="fill-[#fff4e2] font-display text-[20px] italic"
+      >
+        {ROMAN[index] ?? index + 1}
+      </text>
+    </svg>
+  );
+}
 
 export function Courses() {
   return (
-    <section id="courses" className="mx-auto max-w-6xl px-6 py-24 md:py-32">
-      <SectionHeading
-        eyebrow="Certifications & Training"
-        title="Courses & continued learning"
-        description="Formal training and coursework, described as what it is — not inflated into professional experience."
+    <section
+      id="courses"
+      aria-labelledby="courses-title"
+      tabIndex={-1}
+      className="relative mx-auto max-w-6xl px-6 py-28 outline-none md:py-40"
+    >
+      <ChapterHeading
+        id="courses"
+        description="Formal certificates and training, recorded exactly as issued — including what each one does and doesn't prove."
       />
 
-      <div className="grid gap-5 md:grid-cols-3">
-        {courses.map((course, i) => (
-          <Reveal key={course.name} delay={i * 0.08}>
-            <div className="flex h-full flex-col rounded-2xl border border-border bg-bg-elevated/40 p-6">
-              {course.date && (
-                <p className="font-mono text-[11px] tracking-[0.15em] text-accent uppercase">
-                  {course.date}
-                </p>
-              )}
-              <h3 className="mt-2 font-display text-base font-semibold text-fg">{course.name}</h3>
-              <p className="mt-1 text-sm text-fg-subtle">{course.provider}</p>
-              {course.program && (
-                <p className="mt-0.5 text-xs text-fg-subtle">{course.program}</p>
-              )}
+      {courses.length > 0 ? (
+        <ul className="grid gap-6 lg:grid-cols-3">
+          {courses.map((course, i) => (
+            <Reveal as="li" key={course.name} delay={i * 120}>
+              <article className="glass flex h-full flex-col rounded-[1.75rem] p-7">
+                <Seal index={i} />
+                <h3 className="mt-5 font-display text-2xl leading-snug text-balance text-ink">{course.name}</h3>
+                <p className="mt-2 text-sm text-ink-muted">{course.provider}</p>
+                {course.program && <p className="mt-1 text-sm text-ink-subtle">{course.program}</p>}
 
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {course.topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="rounded-full border border-border bg-bg-elevated-2 px-2.5 py-1 font-mono text-[10px] text-fg-subtle"
-                  >
-                    {topic}
-                  </span>
-                ))}
-                {course.grade && (
-                  <span className="rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 font-mono text-[10px] text-accent">
-                    {course.grade}
-                  </span>
+                <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                  {course.date && (
+                    <div>
+                      <dt className="eyebrow text-[10px]">Date</dt>
+                      <dd className="mt-0.5 text-ink">{course.date}</dd>
+                    </div>
+                  )}
+                  {course.grade && (
+                    <div>
+                      <dt className="eyebrow text-[10px]">Grade</dt>
+                      <dd className="mt-0.5 text-ink">{course.grade}</dd>
+                    </div>
+                  )}
+                </dl>
+
+                <ul className="mt-5 flex flex-wrap gap-2">
+                  {course.topics.map((topic) => (
+                    <li
+                      key={topic}
+                      className="rounded-full border border-line bg-night-2/50 px-3 py-1 font-mono text-[11px] text-ink-muted"
+                    >
+                      {topic}
+                    </li>
+                  ))}
+                </ul>
+
+                {course.notes && (
+                  <p className="mt-6 flex gap-2.5 rounded-2xl border border-dream/20 bg-dream/5 p-4 text-[13px] leading-relaxed text-ink-muted">
+                    <Info size={16} aria-hidden className="mt-0.5 shrink-0 text-dream" />
+                    <span>{course.notes}</span>
+                  </p>
                 )}
-              </div>
 
-              {course.notes && (
-                <p className="mt-4 text-xs leading-relaxed text-fg-subtle">{course.notes}</p>
-              )}
-
-              {/* Only surfaced when the certificate carries a different name
-                  from the one used across the rest of the site. */}
-              {course.certificateName && course.certificateName !== profile.name && (
-                <p className="mt-4 border-t border-border pt-3 text-[11px] text-fg-subtle">
-                  Certificate name on record:{" "}
-                  <span className="font-mono text-fg-muted">{course.certificateName}</span>
-                </p>
-              )}
-            </div>
-          </Reveal>
-        ))}
-      </div>
-
-      {courses.length === 0 && (
-        <Reveal delay={0.1}>
-          <div className="rounded-2xl border border-dashed border-border bg-bg-elevated/30 p-10 text-center">
-            <p className="text-sm text-fg-subtle">{coursesPlaceholder}</p>
-          </div>
-        </Reveal>
+                {course.certificateName && course.certificateName !== profile.name && (
+                  <p className="mt-4 text-xs text-ink-subtle">
+                    Name as printed on the certificate:{" "}
+                    <span className="font-mono text-ink-muted">{course.certificateName}</span>
+                  </p>
+                )}
+              </article>
+            </Reveal>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-ink-subtle">{coursesPlaceholder}</p>
       )}
+
       {courses.length > 0 && (
-        <p className="mt-6 text-xs text-fg-subtle">{coursesPlaceholder}</p>
+        <Reveal>
+          <p className="mt-8 text-sm text-ink-subtle">{coursesPlaceholder}</p>
+        </Reveal>
       )}
     </section>
   );
