@@ -102,6 +102,94 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "candalyst",
+    name: "Candalyst",
+    category: "AI Engineering",
+    tags: ["AI", "Python", "Web", "Cloud", "Docker"],
+    tagline: "Resume analysis built entirely from classical NLP and machine learning — with no AI service anywhere in it",
+    description:
+      "A resume analysis system that reads a CV and reports four things separately: its professional category out of 45, its closest matches among 2,942 ESCO occupations, the skills it can recognise from a 170-entry vocabulary, and a seniority level inferred from the dates in the work history. Trained on 13,004 real resumes, it uses no hosted AI service at all and is proven to classify correctly with all network access blocked.",
+    longDescription: [
+      "Candalyst is Hafzal's deepest machine-learning engineering project, and the counterpart to his LLM work: where Khwarizmi Studio is built on large language models, Candalyst deliberately contains none. No OpenAI, Anthropic, Gemini or other hosted inference API; no LangChain, RAG, agents or prompt-based classification. The intelligence is a scikit-learn model trained on a labelled corpus plus a deterministic skill taxonomy, and the guarantee is enforced by a test rather than promised in a README — the application classifies correctly inside a container with all outbound network access blocked.",
+      "The project began as a rescue rather than a green field. An earlier prototype of the same idea was audited and found to be trained on nine documents, to ship a vectoriser that disagreed with its own dataset, to extract no skills at all from the newline-delimited lists real resumes actually use, and to expose a remote-code-execution path through a debugger left enabled. Rather than patch it, Hafzal rebuilt the system from an empty directory under an explicit engineering constitution: measure before optimising, never tune on the test split, and prefer a loud failure to a silent one.",
+      "It ships in two editions from one codebase. A containerised Flask service with PostgreSQL persistence covers self-hosted use, and a browser edition — the recruiter-facing product — runs the entire analysis inside the recruiter's own browser, so a CV is never uploaded anywhere. The whole system is documented in a 79-page thesis covering design, corpus, architecture, evaluation, testing, deployment and the ethical and legal context of automated decision support in hiring. Source: github.com/hafzal03/ai-resume-analyzer",
+    ],
+    technologies: [
+      "Python",
+      "scikit-learn",
+      "NumPy",
+      "SciPy",
+      "Flask",
+      "PostgreSQL",
+      "SQLAlchemy + Alembic",
+      "Docker",
+      "JavaScript",
+      "pdf.js",
+      "Azure Static Web Apps",
+      "pytest",
+    ],
+    breakdown: [
+      {
+        heading: "The corpus, and why deduplication mattered",
+        body: "Two publicly licensed collections of real resumes — ResumeAtlas and LiveCareer — merged, validated, deduplicated and split into 13,004 records across 45 categories. Deduplication turned out to be more than housekeeping: the larger corpus contained 2,438 duplicate documents, 18% of itself, which would have put copies of the same resume in both the training and test sets for anyone using it unmodified. Every correction is written to a reviewable file rather than applied silently.",
+      },
+      {
+        heading: "Label rules: diagnosing a data problem, not a model problem",
+        body: "A user report — a nurse's CV classified as \"QA & Testing\" — was traced not to the model but to a source corpus that had built its Testing class by keyword search and had no healthcare class at all. The fix was declared, reviewable label rules held as data in the taxonomy file: a QA CV must show software-testing evidence, a CV opening with a clinical title is healthcare whatever the scraper filed it under. 87 records were relabelled and 393 quarantined.",
+      },
+      {
+        heading: "Training protocol",
+        body: "Baselines first, then cross-validated model selection across 15 feature and estimator combinations, hyperparameter tuning, and confidence-policy tuning — with one final held-out evaluation. The test split of 1,951 resumes is opened exactly once, at the very end, and is never used for model selection or threshold tuning.",
+      },
+      {
+        heading: "Measured results, reported honestly",
+        body: "The deployed browser model reaches a macro-F1 of 0.819 and 82.1% accuracy on the held-out split, against a stratified-random baseline of 0.021 macro-F1. Macro-F1 is treated as the headline metric rather than accuracy, because a 5.4× class imbalance means accuracy alone would hide a class failing completely. The weakest classes are named rather than buried — Management at F1 0.37 is the worst, and the reason is traced back to label noise in classes the rules could not correct.",
+      },
+      {
+        heading: "Knowing when not to answer",
+        body: "A confidence policy combining probability and margin lets the system commit to an answer for 83.0% of resumes and be right on 89.8% of those, reporting \"Uncertain\" for the rest rather than forcing a guess. Refusing to answer is treated as a feature of a hiring-adjacent tool, not a shortfall.",
+      },
+      {
+        heading: "Four analyses, never blended into one score",
+        body: "Category, occupation, skills and seniority are reported separately and deliberately never combined, because they are not equally trustworthy: the category has measured accuracy, skills and seniority are exact by construction, and occupation matching has no test set at all and is labelled as an unmeasured suggestion. A single \"87% match\" number would hide every one of those distinctions.",
+      },
+      {
+        heading: "The browser edition, and a parity chain",
+        body: "The recruiter-facing product re-implements the inference pipeline in JavaScript so the analysis runs inside the recruiter's own browser and CVs are never uploaded. Correctness is not assumed: a parity chain pins the JavaScript engine to the Python implementation, agreeing with scikit-learn to within 3.1 × 10⁻¹⁵. It adds batch analysis of up to 50 CVs, job-description matching and a printable candidate summary.",
+      },
+      {
+        heading: "Privacy by default",
+        body: "Resume text is not stored — only a SHA-256 hash, the prediction and document statistics. Uploads are processed in memory and never written to disk; there is no filename column, because filenames routinely contain candidate names, and no age column or any other protected characteristic. PII — emails, phone numbers, URLs — is redacted before features are computed, and logs record decisions, never resume content.",
+      },
+      {
+        heading: "API, containers and security posture",
+        body: "A versioned HTTP API with health, readiness, model-provenance, taxonomy and classification endpoints, returning one typed error envelope that never leaks a traceback. The Docker stack is PostgreSQL plus the web service, with enforced startup ordering and a verified posture: a 471 MB image running as a non-root user, the database port unpublished, no default credentials, models mounted read-only so an image can never ship a stale model, and no corpus or secrets baked in.",
+      },
+      {
+        heading: "Testing and quality gates",
+        body: "pytest with ruff and mypy across the codebase, including a test that asserts the no-external-AI guarantee directly. Tests that need a built corpus or a trained model skip themselves cleanly, so a fresh clone can run the suite immediately. Configuration is environment-driven and validated at startup — an unknown setting is rejected outright, so a typo fails loudly instead of silently taking a default.",
+      },
+      {
+        heading: "Deployment",
+        body: "The browser edition is deployed on Azure Static Web Apps on the free plan, invite-only, with the static files and a small counter function hosted there while the analysis itself stays in the browser — Azure never sees a CV. Source and full documentation are on GitHub at github.com/hafzal03/ai-resume-analyzer.",
+      },
+      {
+        heading: "Measuring what the corpus gives away",
+        body: "Because LiveCareer resumes print the job title as a header, a document partly announces its own category. Rather than assume this was harmless, the entire protocol was re-run with the first 300 characters stripped: performance fell by only 0.0141 macro-F1, showing that nearly all of the model's ability comes from the body of the resume rather than its header.",
+      },
+      {
+        heading: "Known limits, stated up front",
+        body: "Occupation matches have no measured accuracy, because nobody has labelled resumes against 2,942 occupations — they are leads, not verdicts. English only. No OCR, so scanned PDFs are refused rather than guessed at. Thin minority classes have noisy metrics, and genuinely overlapping categories such as Accountant, Finance and Banking are confused the way a person would confuse them.",
+      },
+      {
+        heading: "What this project taught",
+        body: "That most of the work in a machine-learning system is data engineering and honest measurement rather than modelling: the duplicates, the mislabelled records and the header leakage each mattered more to the result than the choice of estimator. It also taught the discipline of reporting uncertainty — separating what is measured from what is merely plausible, and building a system that says \"Uncertain\" instead of inventing confidence it has not earned.",
+      },
+    ],
+    status: "Deployed — browser edition live on Azure Static Web Apps (invite-only); source on GitHub",
+    featured: true,
+  },
+  {
     slug: "masters-thesis-case",
     name: "Information System for Computer-Aided Software Engineering",
     category: "Academic & Research",
@@ -225,21 +313,6 @@ export const projects: Project[] = [
     ],
     technologies: ["Python", "Computer Vision", "Machine Learning", "Image Processing"],
     featured: true,
-  },
-  {
-    slug: "resume-classifier",
-    name: "Resume Classifier Web Application",
-    category: "AI Engineering",
-    tags: ["AI", "Python", "Web"],
-    tagline: "A web app that classifies resumes automatically",
-    description:
-      "A web application that takes user-provided resumes, processes them, and applies classification logic to return a useful result.",
-    longDescription: [
-      "Resume Classifier Web Application connects web application development with document processing and automated classification — taking a real document, processing it, and building an intelligent workflow around that processing rather than a purely static application.",
-      "It's part of the AI/ML experimentation that preceded Hafzal's later, more advanced LLM and RAG work.",
-    ],
-    technologies: ["Python", "Web Development", "Text Classification"],
-    archived: true,
   },
   {
     slug: "toll-plaza-management",
