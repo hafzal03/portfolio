@@ -5,6 +5,7 @@
 export const SECTION_IDS = [
   "home",
   "about",
+  "experience",
   "education",
   "projects",
   "skills",
@@ -28,12 +29,13 @@ export interface Chapter {
 export const CHAPTERS: Chapter[] = [
   { id: "home", numeral: "0", label: "Home", title: "Introduction" },
   { id: "about", numeral: "I", label: "About", title: "About me" },
-  { id: "education", numeral: "II", label: "Education", title: "Academic foundation" },
-  { id: "projects", numeral: "III", label: "Projects", title: "Selected work" },
-  { id: "skills", numeral: "IV", label: "Skills", title: "Skills & expertise" },
-  { id: "courses", numeral: "V", label: "Certifications", title: "Certifications & training" },
-  { id: "services", numeral: "VI", label: "Services", title: "Services & pricing" },
-  { id: "contact", numeral: "VII", label: "Contact", title: "Let's work together" },
+  { id: "experience", numeral: "II", label: "Experience", title: "Professional experience" },
+  { id: "education", numeral: "III", label: "Education", title: "Academic foundation" },
+  { id: "projects", numeral: "IV", label: "Projects", title: "Selected work" },
+  { id: "skills", numeral: "V", label: "Skills", title: "Skills & expertise" },
+  { id: "courses", numeral: "VI", label: "Certifications", title: "Certifications & training" },
+  { id: "services", numeral: "VII", label: "Services", title: "Services & pricing" },
+  { id: "contact", numeral: "VIII", label: "Contact", title: "Let's work together" },
 ];
 
 export const CHAPTER_BY_ID = Object.fromEntries(CHAPTERS.map((c) => [c.id, c])) as Record<

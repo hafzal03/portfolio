@@ -15,7 +15,11 @@ export const profile = {
   summary: `Hafzal Ahamed is a software and AI engineer whose background combines formal study in
 computer applications and informatics with hands-on engineering work. His academic foundation —
 a Bachelor of Computer Applications and a Master's in Informatics — covered programming,
-databases, software engineering, networking, cloud technologies, and information security. His
+databases, software engineering, networking, cloud technologies, and information security. He has
+also worked professionally as a Technical Operations Assistant at Bite Globe in Slovakia
+(part-time, January to August 2026), building and maintaining backend applications, SQL data
+workflows and REST APIs with Python, Flask and PostgreSQL, and containerising and deploying them
+with Docker and Kubernetes on Linux. His
 current engineering work centers on AI application development: large language models,
 Retrieval-Augmented Generation, AI agents, workflow orchestration, and the Model Context Protocol
 (MCP). His most advanced project, Khwarizmi Studio, is an AI-native studio where an AI Engineer
@@ -25,7 +29,7 @@ sandboxed execution, and Azure deployment into one system.`,
   // Deliberately distinguishes what's practiced day-to-day from what was studied — see the
   // About section's "Academic knowledge vs. hands-on experience" framing and skills.ts tiers.
   distinctionNote:
-    "This site distinguishes hands-on engineering (things actually built), current AI engineering (Khwarizmi Studio and related work), academic knowledge (studied during the BCA and Master's), and formal training/certification — rather than presenting every studied subject as professional expertise.",
+    "This site distinguishes professional experience (paid work — the Technical Operations Assistant role at Bite Globe, January to August 2026), hands-on engineering (things actually built), current AI engineering (Khwarizmi Studio and related work), academic knowledge (studied during the BCA and Master's), and formal training/certification — rather than presenting every studied subject as professional expertise.",
   focusAreas: [
     "Software Engineering",
     "AI Engineering",

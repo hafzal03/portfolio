@@ -1,5 +1,6 @@
 import { profile } from "@/content/profile";
 import { projects } from "@/content/projects";
+import { roles } from "@/content/experience";
 import { degrees } from "@/content/education";
 import { skillGroups } from "@/content/skills";
 import { courses, coursesPlaceholder } from "@/content/courses";
@@ -31,6 +32,14 @@ export function buildKnowledgeChunks(): KnowledgeChunk[] {
     source: "About",
     text: `${profile.name}'s focus areas: ${profile.focusAreas.join(", ")}. ${profile.distinctionNote}`,
   });
+
+  for (const role of roles) {
+    chunks.push({
+      id: `experience-${role.slug}`,
+      source: `Experience: ${role.title}, ${role.company}`,
+      text: `${profile.name} worked as ${role.title} at ${role.company} in ${role.location} (${role.employmentType}), ${role.period}. This is paid professional work experience, distinct from his personal projects and his academic coursework. About the employer: ${role.context} In the role he: ${role.responsibilities.join(" ")} Technologies used: ${role.technologies.join(", ")}.`,
+    });
+  }
 
   for (const degree of degrees) {
     const subjectsSummary = degree.subjectGroups
