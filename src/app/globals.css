@@ -602,3 +602,13 @@ html.reveal-on [data-reveal]:not([data-revealed]) {
     animation: none !important;
   }
 }
+
+/* The trace that draws across while a project system initialises. */
+@keyframes trace-in {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

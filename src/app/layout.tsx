@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { NeuralField } from "@/components/neural/NeuralField";
-import { DreamChrome } from "@/components/layout/DreamChrome";
+import { CinemaBackdrop } from "@/components/cinema/CinemaBackdrop";
+import { SystemNav } from "@/components/system/SystemNav";
+import { Boot } from "@/components/system/Boot";
+import { Cursor } from "@/components/system/Cursor";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { profile } from "@/content/profile";
 
@@ -92,10 +94,12 @@ export default function RootLayout({
       className={`${fraunces.variable} ${instrumentSans.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        <NeuralField />
-        <DreamChrome />
+        <CinemaBackdrop />
+        <SystemNav />
         <div className="relative z-10">{children}</div>
         <ChatWidget />
+        <Cursor />
+        <Boot />
       </body>
     </html>
   );

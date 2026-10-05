@@ -1,123 +1,81 @@
-import { Eye, KeyRound, Moon, Sun, type LucideIcon } from "lucide-react";
+import { Check } from "lucide-react";
 import { services, pricingTiers, pricingDisclaimer } from "@/content/services";
-import { ChapterHeading } from "@/components/ui/ChapterHeading";
+import { SectionShell, Panel } from "@/components/system/SectionShell";
 import { Reveal } from "@/components/ui/Reveal";
-import { MeltText } from "@/components/ui/MeltText";
-import { cn } from "@/lib/utils";
 
-const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
-
-// Each tier drawn as a tarot card, with its own emblem.
-const EMBLEMS: LucideIcon[] = [Moon, Sun, Eye, KeyRound];
-
+/**
+ * What can be built, and what it indicatively costs. The disclaimer travels
+ * with the numbers rather than being tucked away from them.
+ */
 export function Services() {
   return (
-    <section
+    <SectionShell
       id="services"
-      aria-labelledby="services-title"
-      tabIndex={-1}
-      className="relative mx-auto max-w-6xl px-6 py-28 outline-none md:py-40"
+      description="What I take on, and what it typically costs to build. Scope decides the final number — these are starting points, not quotes."
     >
-      <ChapterHeading id="services" />
-
-      <ol className="border-t border-line">
+      <ul className="grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
         {services.map((service, i) => (
-          <Reveal as="li" key={service.name} delay={i * 60}>
-            <div className="melt group grid gap-2 border-b border-line py-7 sm:grid-cols-[5rem_minmax(0,1fr)_minmax(0,1.1fr)] sm:items-baseline sm:gap-8">
-              <span className="font-mono text-xs tracking-[0.2em] text-dawn">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3
-                aria-label={service.name}
-                className="font-display text-3xl font-light tracking-tight text-ink transition-colors duration-500 group-hover:text-dawn-strong sm:text-4xl"
-              >
-                <MeltText text={service.name} />
-              </h3>
-              <p className="text-ink-muted">{service.description}</p>
-            </div>
-          </Reveal>
+          <li key={service.name}>
+            <Reveal delay={(i % 3) * 90}>
+              <div className="group h-full bg-night-1/60 p-7 backdrop-blur-sm transition-colors duration-300 hover:bg-night-2/60">
+                <p className="readout text-dawn">{String(i + 1).padStart(2, "0")}</p>
+                <h3 className="mt-4 font-sans text-lg font-semibold tracking-[-0.015em] text-ink">
+                  {service.name}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-ink-muted">{service.description}</p>
+              </div>
+            </Reveal>
+          </li>
         ))}
-      </ol>
+      </ul>
 
-      <div className="mt-24 md:mt-32">
+      <div className="mt-20">
         <Reveal>
-          <p className="eyebrow">Pricing · indicative starting prices</p>
+          <p className="readout mb-8 flex items-center gap-4">
+            <span className="text-dawn">Pricing</span>
+            <span aria-hidden className="h-px w-16 bg-line-strong" />
+            <span>Indicative</span>
+          </p>
         </Reveal>
 
-        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {pricingTiers.map((tier, i) => {
-            const Emblem = EMBLEMS[i % EMBLEMS.length];
-            return (
-              <Reveal as="li" key={tier.name} delay={i * 110} className="h-full">
-                <article
-                  className={cn(
-                    "group relative flex h-full flex-col rounded-[1.75rem] p-2 transition-transform duration-700 ease-[var(--ease-dream)] hover:-translate-y-2 hover:-rotate-1",
-                    tier.highlight
-                      ? "bg-gradient-to-b from-dawn/70 via-dream/40 to-dawn/30 shadow-[0_30px_80px_-30px_rgba(255,184,112,0.55)]"
-                      : "bg-gradient-to-b from-line-strong to-line"
-                  )}
-                >
-                  <div className="flex h-full flex-col rounded-[1.4rem] border border-line bg-night-1/95 p-6">
-                    <div className="flex items-center justify-between font-mono text-xs tracking-[0.25em] text-ink-subtle">
-                      <span>{ROMAN[i]}</span>
-                      <span aria-hidden>✧</span>
-                      <span>{ROMAN[i]}</span>
-                    </div>
+        <div className="grid gap-5 lg:grid-cols-4">
+          {pricingTiers.map((tier, i) => (
+            <Reveal key={tier.name} delay={i * 100}>
+              <Panel
+                className={`flex h-full flex-col p-7 ${
+                  tier.highlight ? "border-dawn/45 bg-night-2/55" : ""
+                }`}
+              >
+                {tier.highlight && (
+                  <p className="readout mb-4 text-lucid">Most requested</p>
+                )}
+                <h3 className="font-sans text-lg font-semibold tracking-[-0.015em] text-ink">
+                  {tier.name}
+                </h3>
+                <p className="mt-4 font-sans text-3xl font-semibold tracking-[-0.03em] text-ink">
+                  {tier.startingAt}
+                </p>
+                <p className="readout mt-1 text-ink-subtle">Starting at</p>
+                <p className="mt-5 text-sm leading-relaxed text-ink-muted">{tier.description}</p>
+                <ul className="mt-6 flex flex-col gap-2.5 border-t border-line pt-5">
+                  {tier.includes.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-[13px] leading-relaxed text-ink-muted">
+                      <Check size={14} aria-hidden className="mt-0.5 shrink-0 text-dawn" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            </Reveal>
+          ))}
+        </div>
 
-                    <div className="relative mx-auto my-7 flex h-24 w-24 items-center justify-center">
-                      <span
-                        aria-hidden
-                        className="absolute inset-0 rounded-full border border-dawn/30 transition-transform duration-[1200ms] group-hover:scale-110"
-                      />
-                      <span
-                        aria-hidden
-                        className="absolute inset-3 rounded-full border border-dream/30 transition-transform duration-[1200ms] group-hover:scale-90"
-                      />
-                      <Emblem
-                        size={34}
-                        strokeWidth={1.2}
-                        aria-hidden
-                        className="text-dawn-strong drop-shadow-[0_0_14px_rgba(255,184,112,0.6)] transition-transform duration-[1200ms] group-hover:rotate-12"
-                      />
-                    </div>
-
-                    <h3 className="text-center font-display text-2xl tracking-wide text-ink uppercase">
-                      {tier.name}
-                    </h3>
-                    <p className="mt-2 text-center">
-                      {/\d/.test(tier.startingAt) && <span className="text-xs text-ink-subtle">from </span>}
-                      <span className="font-display text-3xl text-dawn-strong">{tier.startingAt}</span>
-                    </p>
-                    <p className="mt-4 text-center text-sm leading-relaxed text-ink-muted">{tier.description}</p>
-
-                    <ul className="mt-6 space-y-2.5 border-t border-line pt-5 text-sm text-ink-muted">
-                      {tier.includes.map((item) => (
-                        <li key={item} className="flex gap-2.5">
-                          <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-dawn" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
-              </Reveal>
-            );
-          })}
-        </ul>
-
-        <Reveal>
-          <p className="mt-10 max-w-3xl text-sm leading-relaxed text-ink-subtle">{pricingDisclaimer}</p>
-        </Reveal>
-
-        <Reveal>
-          <a
-            href="#contact"
-            className="focus-ring mt-10 inline-flex h-12 items-center gap-2 rounded-full border border-line-strong bg-night-1/40 px-6 text-sm text-ink transition-colors hover:border-dawn/60 hover:text-dawn-strong"
-          >
-            Discuss your project
-          </a>
+        <Reveal delay={150}>
+          <p className="mt-8 max-w-3xl text-sm leading-relaxed text-ink-subtle">
+            {pricingDisclaimer}
+          </p>
         </Reveal>
       </div>
-    </section>
+    </SectionShell>
   );
 }

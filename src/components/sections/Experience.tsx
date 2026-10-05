@@ -1,20 +1,14 @@
 import { ArrowUpRight } from "lucide-react";
 import { roles } from "@/content/experience";
-import { ChapterHeading } from "@/components/ui/ChapterHeading";
+import { SectionShell } from "@/components/system/SectionShell";
 import { Reveal } from "@/components/ui/Reveal";
 
 export function Experience() {
   return (
-    <section
+    <SectionShell
       id="experience"
-      aria-labelledby="experience-title"
-      tabIndex={-1}
-      className="relative mx-auto max-w-6xl px-6 py-28 outline-none md:py-40"
+      description="Engineering done as paid work — the role, the systems it ran on, and what was built and maintained there."
     >
-      <ChapterHeading
-        id="experience"
-        description="Engineering done as paid work — the role, the systems it ran on, and what was built and maintained there."
-      />
 
       <ol className="relative flex flex-col gap-10 md:pl-14">
         {/* The rail: dusk at the most recent role, fading into the night below it. */}
@@ -25,6 +19,11 @@ export function Experience() {
 
         {roles.map((role, i) => (
           <Reveal key={role.slug} as="li" delay={i * 140} className="relative">
+            {/* Year node on the rail: the marker and the year that belongs to
+                it, so the timeline is legible without reading the cards. */}
+            <span aria-hidden className="readout absolute top-2 -left-14 hidden text-dawn md:block">
+              {role.start.slice(0, 4)}
+            </span>
             <span
               aria-hidden
               className="absolute top-9 -left-14 hidden size-[11px] rounded-full border border-dawn-strong/70 bg-night-0 md:block"
@@ -90,6 +89,6 @@ export function Experience() {
           </Reveal>
         ))}
       </ol>
-    </section>
+    </SectionShell>
   );
 }

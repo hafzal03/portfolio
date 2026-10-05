@@ -27,15 +27,15 @@ export interface Chapter {
 }
 
 export const CHAPTERS: Chapter[] = [
-  { id: "home", numeral: "0", label: "Home", title: "Introduction" },
-  { id: "about", numeral: "I", label: "About", title: "About me" },
-  { id: "experience", numeral: "II", label: "Experience", title: "Professional experience" },
-  { id: "education", numeral: "III", label: "Education", title: "Academic foundation" },
-  { id: "projects", numeral: "IV", label: "Projects", title: "Selected work" },
-  { id: "skills", numeral: "V", label: "Skills", title: "Skills & expertise" },
-  { id: "courses", numeral: "VI", label: "Certifications", title: "Certifications & training" },
-  { id: "services", numeral: "VII", label: "Services", title: "Services & pricing" },
-  { id: "contact", numeral: "VIII", label: "Contact", title: "Let's work together" },
+  { id: "home", numeral: "0", label: "Core", title: "System online" },
+  { id: "about", numeral: "I", label: "About", title: "I build software that thinks, connects and executes." },
+  { id: "experience", numeral: "II", label: "Experience", title: "System log" },
+  { id: "education", numeral: "III", label: "Education", title: "Academic system" },
+  { id: "projects", numeral: "IV", label: "Projects", title: "Selected systems" },
+  { id: "skills", numeral: "V", label: "Stack", title: "Technical stack" },
+  { id: "courses", numeral: "VI", label: "Knowledge", title: "Knowledge base" },
+  { id: "services", numeral: "VII", label: "Capabilities", title: "Capabilities" },
+  { id: "contact", numeral: "VIII", label: "Contact", title: "Ready to build the next system?" },
 ];
 
 export const CHAPTER_BY_ID = Object.fromEntries(CHAPTERS.map((c) => [c.id, c])) as Record<
