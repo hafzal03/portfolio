@@ -1,4 +1,4 @@
-import { Hero } from "@/components/sections/Hero";
+import { HeroAI } from "@/components/sections/HeroAI";
 import { About } from "@/components/sections/About";
 import { Experience } from "@/components/sections/Experience";
 import { Education } from "@/components/sections/Education";
@@ -11,7 +11,7 @@ import { Contact } from "@/components/sections/Contact";
 export default function Home() {
   return (
     <main id="main" tabIndex={-1} className="outline-none">
-      <Hero />
+      <HeroAI />
       <About />
       <Experience />
       <Education />

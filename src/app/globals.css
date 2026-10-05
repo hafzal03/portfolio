@@ -483,3 +483,122 @@ html.reveal-on [data-reveal]:not([data-revealed]) {
     scroll-behavior: auto !important;
   }
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Inference — the AI-engineering re-skin.
+   
+   The token NAMES are deliberately unchanged, so every existing section picks
+   up the new palette without being rewritten: dusk and sea become graphite and
+   signal. Anything below this point overrides the dream palette above it.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --night-0: #05070e; /* graphite, not midnight blue */
+  --night-1: #0a0f1a;
+  --night-2: #111827;
+  --night-3: #1b2435;
+
+  --ink: #e9f2ff; /* 16.8:1 on --night-0 */
+  --ink-muted: #a8bdd6; /* 9.4:1 */
+  --ink-subtle: #93abc7; /* 7.4:1 — still AA for body text */
+
+  --dawn: #5ad1ff; /* signal cyan — the primary accent */
+  --dawn-strong: #a8e8ff;
+  --rose: #7c8cff; /* electric indigo */
+  --dream: #a78bfa; /* violet */
+  --lucid: #34e0c8; /* activation teal */
+  --mercury: #cfe0f2;
+  --ok: #4ade80;
+
+  --line: rgb(130 175 230 / 0.14);
+  --line-strong: rgb(130 175 230 / 0.3);
+  --glass: rgb(10 15 26 / 0.6);
+  --glass-strong: rgb(5 7 14 / 0.88);
+}
+
+/* The stage sits behind everything and never takes a pointer event. */
+.neural-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #0d1524 0%, #070a12 45%, #04060b 100%);
+}
+
+.neural-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* A faint engineering grid — the only thing in the scene that is not organic. */
+.neural-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(130 175 230 / 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(130 175 230 / 0.055) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(80% 60% at 50% 42%, #000 0%, transparent 78%);
+}
+
+.neural-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 55% at 50% 45%, transparent 0%, rgb(4 6 11 / 0.55) 100%);
+}
+
+/* Monospaced machine readout, used for the status line and the metric strip. */
+.readout {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+
+/* The hero name before GSAP takes over: visible to crawlers and to anyone
+   without JavaScript, so the decode is an enhancement and never a dependency. */
+.decode {
+  font-variant-ligatures: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neural-grid {
+    opacity: 0.6;
+  }
+}
+
+/* Horizontal twin of .scroll-thread, for the landing page's scroll cue. */
+.scroll-thread-x {
+  animation: thread-x 2.6s var(--ease-drip) infinite;
+}
+
+@keyframes thread-x {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  45% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  55% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-thread-x {
+    animation: none !important;
+  }
+}

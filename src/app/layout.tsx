@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { DreamSky } from "@/components/dream/DreamSky";
-import { CursorWisp } from "@/components/dream/CursorWisp";
-import { Eyelids, EYELIDS_SCRIPT } from "@/components/dream/Eyelids";
+import { NeuralField } from "@/components/neural/NeuralField";
 import { DreamChrome } from "@/components/layout/DreamChrome";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { profile } from "@/content/profile";
@@ -92,19 +90,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${fraunces.variable} ${instrumentSans.variable} ${jetbrainsMono.variable}`}
-      // EYELIDS_SCRIPT may add .eyes-open before React hydrates.
-      suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: EYELIDS_SCRIPT }} />
-      </head>
       <body>
-        <Eyelids />
-        <DreamSky />
+        <NeuralField />
         <DreamChrome />
         <div className="relative z-10">{children}</div>
         <ChatWidget />
-        <CursorWisp />
       </body>
     </html>
   );
