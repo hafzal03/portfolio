@@ -25,8 +25,10 @@ export function Contact() {
     },
     {
       id: "github",
+      // The handle rather than the whole URL: it is what people recognise,
+      // and a full LinkedIn path truncates mid-word in this column.
       label: "GitHub",
-      value: contact.githubUrl.replace(/^https?:\/\//, ""),
+      value: `@${contact.githubUrl.replace(/^https?:\/\/(www\.)?github\.com\//, "")}`,
       href: contact.githubUrl,
       Icon: GithubIcon,
     },
@@ -34,7 +36,7 @@ export function Contact() {
       ? {
           id: "linkedin",
           label: "LinkedIn",
-          value: contact.linkedinUrl.replace(/^https?:\/\//, ""),
+          value: contact.linkedinUrl.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, ""),
           href: contact.linkedinUrl,
           Icon: LinkedinIcon,
         }

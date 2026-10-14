@@ -4,21 +4,20 @@ import { useRef } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { profile } from "@/content/profile";
+import { contact } from "@/content/contact";
+import { projects } from "@/content/projects";
 import { AskAIButton } from "@/components/chatbot/AskAIButton";
 
-gsap.registerPlugin(useGSAP, ScrambleTextPlugin, ScrollTrigger);
+gsap.registerPlugin(useGSAP);
 
 /**
- * The landing page: a machine resolving an identity.
+ * The opening. One screen, no sequence, nothing to sit through.
  *
- * The name is in the served HTML, so crawlers and anyone without JavaScript
- * read it immediately; GSAP only scrambles and re-resolves it. Everything the
- * timeline animates starts visible in CSS and is hidden by the timeline
- * itself, so a failure to run leaves a complete, readable page rather than an
- * empty one.
+ * The whole statement is in the served HTML and visible without JavaScript;
+ * the timeline only reveals what is already there. Motion is short and
+ * overlapping — under a second from first paint to settled — because the job
+ * of a portfolio opening is to be read, not watched.
  */
 export function HeroAI() {
   const scope = useRef<HTMLElement>(null);
@@ -27,71 +26,54 @@ export function HeroAI() {
 
   useGSAP(
     () => {
-      const reduce = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      const rise = { opacity: 0, y: 18 };
-
-      if (reduce) {
-        gsap.set("[data-anim]", { opacity: 1, y: 0 });
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        gsap.set("[data-a]", { opacity: 1, y: 0 });
+        gsap.set("[data-rule]", { scaleX: 1 });
         return;
       }
 
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      // A hidden tab runs no animation frames, so a timeline started there
+      // would hold its content at opacity 0 until the tab was looked at. The
+      // opening is an enhancement; it is never allowed to be the reason the
+      // page is blank. Same reasoning as lib/reveal.ts.
+      if (document.visibilityState === "hidden") {
+        gsap.set("[data-a]", { opacity: 1, y: 0 });
+        gsap.set("[data-rule]", { scaleX: 1 });
+        return;
+      }
 
-      tl.set("[data-anim]", rise)
+      const tl = gsap
+        .timeline({ defaults: { ease: "expo.out", duration: 1.1 } })
+        .set("[data-a]", { opacity: 0, y: 22 })
         .set("[data-rule]", { scaleX: 0, transformOrigin: "left center" })
-        .to("[data-anim='status']", { opacity: 1, y: 0, duration: 0.7 }, 0.15)
+        .to("[data-a='eyebrow']", { opacity: 1, y: 0 }, 0.05)
+        .to("[data-a='line1']", { opacity: 1, y: 0 }, 0.14)
+        .to("[data-a='line2']", { opacity: 1, y: 0 }, 0.22)
         .to(
           "[data-rule]",
-          { scaleX: 1, duration: 1.1, ease: "power2.inOut" },
-          0.2,
+          { scaleX: 1, duration: 1.4, ease: "power2.inOut" },
+          0.3,
         )
-        .to("[data-anim='role']", { opacity: 1, y: 0, duration: 0.6 }, 0.45)
-        // The name arrives as noise and resolves — the one moment that has to
-        // say "inference" rather than "fade in".
-        .to("[data-anim='name']", { opacity: 1, y: 0, duration: 0.5 }, 0.6)
-        .to(
-          "[data-scramble]",
-          {
-            duration: 1.5,
-            scrambleText: {
-              text: "{original}",
-              chars: "01</>{}[]#$",
-              speed: 0.5,
-              revealDelay: 0.35,
-            },
-            ease: "none",
-          },
-          0.65,
-        )
-        .to("[data-anim='tagline']", { opacity: 1, y: 0, duration: 0.7 }, 1.35)
-        .to(
-          "[data-anim='focus']",
-          { opacity: 1, y: 0, duration: 0.6, stagger: 0.06 },
-          1.5,
-        )
-        .to(
-          "[data-anim='cta']",
-          { opacity: 1, y: 0, duration: 0.6, stagger: 0.08 },
-          1.7,
-        )
-        .to("[data-anim='scroll']", { opacity: 1, y: 0, duration: 0.6 }, 2.0);
+        .to("[data-a='lede']", { opacity: 1, y: 0 }, 0.42)
+        .to("[data-a='meta']", { opacity: 1, y: 0, stagger: 0.05 }, 0.52)
+        .to("[data-a='cta']", { opacity: 1, y: 0, stagger: 0.06 }, 0.6);
 
-      // The writing hands over to the sequence: as the figure starts coming
-      // apart, the text clears the frame so the camera has the screen to
-      // itself. Scrubbed, so it is the scroll position doing it, not a timer.
-      gsap.to("[data-pin]", {
-        opacity: 0,
-        filter: "blur(6px)",
-        ease: "none",
-        scrollTrigger: {
-          trigger: scope.current,
-          start: "top top",
-          end: "+=65%",
-          scrub: 0.6,
-        },
-      });
+      // Belt and braces: if frames stop for any reason mid-intro — the tab is
+      // hidden, the renderer is throttled — jump to the finished state rather
+      // than leaving the page half-revealed.
+      const settle = window.setTimeout(() => {
+        if (tl.progress() < 1) tl.progress(1);
+      }, 2600);
+      const onVisible = () => {
+        if (document.visibilityState === "visible" && tl.progress() < 1)
+          tl.progress(1);
+      };
+      document.addEventListener("visibilitychange", onVisible);
+
+      return () => {
+        window.clearTimeout(settle);
+        document.removeEventListener("visibilitychange", onVisible);
+      };
     },
     { scope },
   );
@@ -102,130 +84,100 @@ export function HeroAI() {
       id="home"
       aria-labelledby="home-title"
       tabIndex={-1}
-      className="relative outline-none"
+      className="relative flex min-h-[100svh] flex-col justify-center px-6 py-32 outline-none"
     >
-      {/* Pinned while the sequence runs behind it, then released. */}
-      <div
-        data-pin
-        className="sticky top-0 flex min-h-[100svh] flex-col justify-center px-6 py-28"
-      >
-        <div className="mx-auto w-full max-w-6xl">
-          <p
-            data-anim="status"
-            className="readout mb-10 inline-flex items-center gap-3 rounded-md border border-line bg-night-1/60 px-3 py-2 backdrop-blur-sm"
-          >
-            <span className="relative flex h-1.5 w-1.5">
-              <span
-                aria-hidden
-                className="pulse-ring absolute inset-0 rounded-full bg-lucid"
-              />
-              <span className="relative h-1.5 w-1.5 rounded-full bg-lucid" />
-            </span>
-            Building Khwarizmi Studio — an AI Engineer agent
-          </p>
-
-          <p data-anim="role" className="readout mb-5 text-dawn">
-            {profile.role}
-          </p>
-
-          <h1
-            id="home-title"
-            data-anim="name"
-            aria-label={profile.name}
-            className="decode font-sans text-[clamp(2.9rem,11vw,7.5rem)] leading-[0.92] font-semibold tracking-[-0.045em] text-ink"
-          >
-            <span data-scramble className="block">
-              {first}
-            </span>
-            <span
-              data-scramble
-              className="block bg-gradient-to-r from-dawn via-lucid to-rose bg-clip-text text-transparent"
-            >
-              {last}
-            </span>
-          </h1>
-
-          <div
-            data-rule
-            aria-hidden
-            className="mt-10 h-px w-full max-w-3xl bg-gradient-to-r from-dawn/70 via-line-strong to-transparent"
-          />
-
-          <p
-            data-anim="tagline"
-            className="mt-8 max-w-2xl text-lg leading-relaxed text-pretty text-ink-muted sm:text-xl"
-          >
-            {profile.tagline}
-          </p>
-
-          <ul className="mt-8 flex flex-wrap gap-2">
-            {profile.focusAreas.slice(0, 5).map((area) => (
-              <li
-                key={area}
-                data-anim="focus"
-                className="readout rounded border border-line bg-night-1/40 px-2.5 py-1.5 text-ink-muted"
-              >
-                {area}
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-12 flex flex-wrap items-center gap-3">
-            <a
-              data-anim="cta"
-              href="#projects"
-              className="focus-ring group inline-flex h-12 items-center gap-2 rounded-lg bg-dawn px-6 text-sm font-semibold text-night-0 transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_-12px_var(--dawn)]"
-            >
-              View work
-              <ArrowRight
-                size={16}
-                aria-hidden
-                className="transition-transform duration-300 group-hover:translate-x-0.5"
-              />
-            </a>
-            <a
-              data-anim="cta"
-              href="#contact"
-              className="focus-ring inline-flex h-12 items-center rounded-lg border border-line-strong bg-night-1/40 px-6 text-sm font-medium text-ink backdrop-blur-sm transition-colors duration-300 hover:border-dawn/60 hover:text-dawn"
-            >
-              Get in touch
-            </a>
-            {/* Wrapped rather than given the attribute directly: AskAIButton's
-              contract is className and children, and the redesign is not a
-              reason to widen it. */}
-            <span data-anim="cta" className="inline-flex">
-              <AskAIButton className="focus-ring group inline-flex h-12 items-center gap-2 rounded-lg px-4 text-sm text-ink-muted transition-colors hover:text-ink">
-                <Sparkles
-                  size={15}
-                  aria-hidden
-                  className="text-lucid transition-transform duration-500 group-hover:rotate-45"
-                />
-                Ask Hafzal AI
-              </AskAIButton>
-            </span>
-          </div>
-
-          <a
-            data-anim="scroll"
-            href="#about"
-            className="focus-ring group mt-20 hidden w-fit items-center gap-4 rounded py-2 text-ink-subtle md:flex"
-          >
-            <span className="readout transition-colors group-hover:text-ink">
-              Scroll
-            </span>
+      <div className="mx-auto w-full max-w-6xl">
+        <p data-a="eyebrow" className="readout flex items-center gap-4">
+          <span className="relative flex h-1.5 w-1.5">
             <span
               aria-hidden
-              className="relative block h-px w-24 overflow-hidden bg-line"
-            >
-              <span className="scroll-thread-x absolute inset-0 bg-gradient-to-r from-dawn to-lucid" />
-            </span>
+              className="absolute inset-0 animate-ping rounded-full bg-dawn/70"
+            />
+            <span className="relative h-1.5 w-1.5 rounded-full bg-dawn" />
+          </span>
+          <span className="text-ink-muted">{profile.role}</span>
+          <span
+            aria-hidden
+            className="hidden h-px w-10 bg-line-strong sm:block"
+          />
+          <span className="hidden sm:block">Building Khwarizmi Studio</span>
+        </p>
+        <h1
+          id="home-title"
+          aria-label={profile.name}
+          className="display mt-10 text-[clamp(3.2rem,13vw,9.5rem)] text-ink"
+        >
+          <span data-a="line1" className="block">
+            {first}
+          </span>
+          <span data-a="line2" className="gold-text block">
+            {last}
+          </span>
+        </h1>
+
+        <div
+          data-rule
+          aria-hidden
+          className="gold-rule mt-10 w-full max-w-3xl"
+        />
+
+        <p
+          data-a="lede"
+          className="mt-10 max-w-2xl text-lg leading-relaxed text-pretty text-ink-muted sm:text-xl"
+        >
+          {profile.tagline}
+        </p>
+
+        <dl className="mt-12 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
+          {/* Every figure here is read from the content modules. Nothing in
+              this strip is asserted that the site cannot back up. */}
+          {[
+            { k: "Focus", v: "AI engineering" },
+            { k: "Core stack", v: "Python · TypeScript" },
+            { k: "Systems built", v: String(projects.length) },
+            { k: "Flagship", v: "Khwarizmi Studio" },
+          ].map((item) => (
+            <div key={item.k} data-a="meta">
+              <dt className="readout">{item.k}</dt>
+              <dd className="mt-2 text-[15px] font-medium text-ink">
+                {item.v}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="mt-14 flex flex-wrap items-center gap-3">
+          <a
+            data-a="cta"
+            href="#projects"
+            className="focus-ring group inline-flex h-12 items-center gap-2.5 rounded-full bg-dawn px-7 text-sm font-semibold text-night-0 transition-all duration-500 hover:bg-dawn-strong"
+          >
+            View work
+            <ArrowRight
+              size={16}
+              aria-hidden
+              className="transition-transform duration-500 group-hover:translate-x-1"
+            />
           </a>
+          <a
+            data-a="cta"
+            href={`mailto:${contact.email}`}
+            className="focus-ring inline-flex h-12 items-center rounded-full border border-line-strong px-7 text-sm font-medium text-ink transition-colors duration-500 hover:border-dawn/60 hover:text-dawn"
+          >
+            Get in touch
+          </a>
+          <span data-a="cta" className="inline-flex">
+            <AskAIButton className="focus-ring group inline-flex h-12 items-center gap-2 rounded-full px-5 text-sm text-ink-muted transition-colors hover:text-ink">
+              <Sparkles
+                size={15}
+                aria-hidden
+                className="text-dawn transition-transform duration-700 group-hover:rotate-90"
+              />
+              Ask Hafzal AI
+            </AskAIButton>
+          </span>
         </div>
       </div>
-
-      {/* Scroll room: the figure comes apart and the camera flies through it
-          here, with nothing competing for the screen. */}
-      <div aria-hidden className="h-[230vh]" />
     </section>
   );
 }

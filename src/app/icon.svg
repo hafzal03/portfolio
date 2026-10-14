@@ -1,25 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Obsidian chip, gold monogram. Built to survive 16px: one heavy letterform,
+       no gradients inside the glyph, and nothing thinner than 2px. -->
   <defs>
-    <linearGradient id="night" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#241c55"/>
-      <stop offset="0.62" stop-color="#0d0b28"/>
-      <stop offset="1" stop-color="#07061a"/>
+    <linearGradient id="chip" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14141b"/>
+      <stop offset="1" stop-color="#08080b"/>
     </linearGradient>
-    <linearGradient id="orb" x1="10" y1="5" x2="22" y2="20" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#ffe3bf"/>
-      <stop offset="0.45" stop-color="#ffb870"/>
-      <stop offset="1" stop-color="#b69cff"/>
-    </linearGradient>
-    <linearGradient id="refl" x1="10" y1="22" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#b69cff"/>
-      <stop offset="1" stop-color="#ffb870"/>
+    <linearGradient id="gold" x1="9" y1="7" x2="23" y2="25" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f7d79a"/>
+      <stop offset="0.55" stop-color="#e8b65a"/>
+      <stop offset="1" stop-color="#c9953f"/>
     </linearGradient>
   </defs>
-  <rect width="32" height="32" rx="8" fill="url(#night)"/>
-  <circle cx="16" cy="12.5" r="7.25" fill="url(#orb)"/>
-  <path d="M14.3 17.6v-3.4a1.7 1.7 0 0 1 3.4 0v3.4" fill="#07061a" opacity="0.85"/>
-  <path d="M4.5 20.6h23" stroke="#c3bce0" stroke-opacity="0.65" stroke-width="1" stroke-linecap="round"/>
-  <rect x="9.5" y="22.4" width="13" height="1.7" rx="0.85" fill="url(#refl)" opacity="0.85"/>
-  <rect x="11.8" y="25.2" width="8.4" height="1.5" rx="0.75" fill="url(#refl)" opacity="0.55"/>
-  <rect x="14.1" y="27.8" width="3.8" height="1.3" rx="0.65" fill="url(#refl)" opacity="0.35"/>
+
+  <rect width="32" height="32" rx="8" fill="url(#chip)"/>
+  <rect x="0.6" y="0.6" width="30.8" height="30.8" rx="7.4" fill="none"
+        stroke="#e8b65a" stroke-opacity="0.3" stroke-width="1.2"/>
+
+  <!-- H -->
+  <path d="M9 8h3.6v6.4h6.8V8H23v16h-3.6v-6.6h-6.8V24H9V8z" fill="url(#gold)"/>
 </svg>

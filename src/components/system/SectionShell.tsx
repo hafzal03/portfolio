@@ -74,9 +74,9 @@ export function Panel({
 }) {
   return (
     <div
-      className={`relative rounded-xl border border-line bg-night-1/50 backdrop-blur-sm ${
+      className={`panel relative rounded-xl ${
         interactive
-          ? "transition-colors duration-300 hover:border-dawn/45 hover:bg-night-2/50"
+          ? "transition-colors duration-500 hover:border-dawn/40"
           : ""
       } ${className}`}
     >

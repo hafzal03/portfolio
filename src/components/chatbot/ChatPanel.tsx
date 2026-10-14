@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUp, X } from "lucide-react";
 import { useDialog } from "@/lib/useDialog";
-import { DreamOrb } from "./DreamOrb";
+import { AIMark } from "./AIMark";
 
 // ── Conversation logic ──────────────────────────────────────────────────────
 // Unchanged from the previous design on purpose: same endpoint, same request
@@ -99,7 +99,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
 
       <header className="relative flex items-center justify-between gap-3 border-b border-line px-5 py-4">
         <div className="flex items-center gap-3">
-          <DreamOrb size={36} thinking={loading} />
+          <AIMark size={36} thinking={loading} />
           <div>
             <h2 id="chat-panel-title" className="font-display text-lg leading-tight text-ink">
               Hafzal AI
@@ -165,7 +165,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             ))}
             {loading && (
               <div className="flex w-fit items-center gap-3 rounded-[1.25rem] rounded-bl-md border border-line bg-night-2/70 px-4 py-3 text-sm text-ink-subtle">
-                <DreamOrb size={18} thinking />
+                <AIMark size={18} thinking />
                 <span>Thinking…</span>
               </div>
             )}

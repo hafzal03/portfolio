@@ -1,29 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Archivo, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { CinemaBackdrop } from "@/components/cinema/CinemaBackdrop";
+import { AmbientField } from "@/components/ambient/AmbientField";
+import { SmoothScroll } from "@/components/system/SmoothScroll";
 import { SystemNav } from "@/components/system/SystemNav";
-import { Boot } from "@/components/system/Boot";
 import { Cursor } from "@/components/system/Cursor";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { profile } from "@/content/profile";
 
-// Display: Fraunces, loaded with its SOFT and WONK axes — the melting-letter
-// effects animate those two axes (see .melt-char in globals.css).
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+// One grotesque carries the whole page, from 900-weight display down to body
+// copy: Archivo holds its proportions at every size, so the hierarchy comes
+// from weight and scale rather than from switching families.
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  axes: ["SOFT", "WONK", "opsz"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
-const instrumentSans = Instrument_Sans({
-  variable: "--font-instrument-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
+// Mono is structural, not decorative: indices, labels, metadata, data.
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
@@ -91,15 +86,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${instrumentSans.variable} ${jetbrainsMono.variable}`}
+      className={`${archivo.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        <CinemaBackdrop />
+        <AmbientField />
+        <SmoothScroll />
         <SystemNav />
         <div className="relative z-10">{children}</div>
         <ChatWidget />
         <Cursor />
-        <Boot />
       </body>
     </html>
   );

@@ -1,8 +1,8 @@
-// Real contact details only. linkedinUrl is intentionally empty until Hafzal
-// provides it — the UI hides that link rather than showing a placeholder URL.
+// Real contact details only. Empty routes are hidden by the UI rather than
+// rendered as placeholder links, so anything present here is live.
 
 export const contact = {
   email: "hafzalahamed003@gmail.com",
   githubUrl: "https://github.com/hafzal03",
-  linkedinUrl: "", // TODO: fill in once provided — UI hides the icon while empty.
+  linkedinUrl: "https://linkedin.com/in/hafzal-ahamed-hasan-mohamed",
 };

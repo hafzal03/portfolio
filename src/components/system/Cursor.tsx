@@ -42,8 +42,12 @@ export function Cursor() {
     let frame = 0;
     let pulseUntil = 0;
 
-    const classify = (el: Element | null): Mode => {
-      if (!el) return "idle";
+    // A pointer event's target is not guaranteed to be an Element — it can be
+    // the document or the window when the pointer is over no element at all,
+    // and neither has closest(). Checking rather than casting.
+    const classify = (target: EventTarget | null): Mode => {
+      if (!(target instanceof Element)) return "idle";
+      const el = target;
       if (el.closest("[data-cursor='project']")) return "project";
       // Only the site chrome, marked explicitly: section headings are <header>
       // elements too, and body copy inside one is not navigation.
@@ -63,7 +67,7 @@ export function Cursor() {
         dot.style.opacity = "1";
         ring.style.opacity = "1";
       }
-      const next = classify(e.target as Element | null);
+      const next = classify(e.target);
       if (next !== mode) {
         mode = next;
         label.textContent = mode === "project" ? "Open" : "";

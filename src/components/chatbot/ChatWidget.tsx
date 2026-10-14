@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
-import { DreamOrb } from "./DreamOrb";
+import { AIMark } from "./AIMark";
 import { OPEN_CHAT_EVENT } from "./events";
 
 // The chat panel (message list, input, API calls) is only loaded once the
@@ -41,7 +41,7 @@ export function ChatWidget() {
             <X size={18} aria-hidden />
           </span>
         ) : (
-          <DreamOrb size={44} className="transition-transform duration-700 group-hover:scale-110" />
+          <AIMark size={44} className="transition-transform duration-700 group-hover:scale-110" />
         )}
         <span className="hidden sm:inline">{open ? "Close" : "Ask Hafzal AI"}</span>
       </motion.button>
